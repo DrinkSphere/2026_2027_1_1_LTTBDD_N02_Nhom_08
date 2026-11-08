@@ -1,30 +1,30 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:lttbdd_n02_nhom_08_2026_2027/main.dart';
+import 'package:lttbdd_n02_nhom_08_2026_2027/data/models/user_model.dart';
+import 'package:lttbdd_n02_nhom_08_2026_2027/core/utils/validators.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('UserModel json serialization test', () {
+    final user = UserModel(
+      id: 'test_1',
+      name: 'Admin Test',
+      email: 'admin@test.com',
+      password: 'password123',
+      role: 'admin',
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final json = user.toJson();
+    final restored = UserModel.fromJson(json);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(restored.id, 'test_1');
+    expect(restored.name, 'Admin Test');
+    expect(restored.email, 'admin@test.com');
+    expect(restored.isAdmin, true);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('Validators email and password test', () {
+    expect(Validators.validateEmail('invalid-email'), isNotNull);
+    expect(Validators.validateEmail('test@gmail.com'), isNull);
+    expect(Validators.validatePassword('123'), isNotNull);
+    expect(Validators.validatePassword('123456'), isNull);
   });
 }
