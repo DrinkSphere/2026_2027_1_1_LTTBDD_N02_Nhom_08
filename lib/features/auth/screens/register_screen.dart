@@ -73,9 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       // Chuyển thẳng vào giao diện người dùng
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => const UserMainScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const UserMainScreen()),
         (route) => false,
       );
     } else {
@@ -146,7 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Khám phá & sáng tạo vô số công thức pha chế đỉnh cao',
+                    'Khám phá vô số công thức pha chế đỉnh cao',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -159,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   AuthTextField(
                     controller: _nameController,
                     label: 'Họ và tên',
-                    hintText: 'Ví dụ: Nguyễn Văn Pha Chế',
+                    hintText: 'Ví dụ: Nguyễn Văn A',
                     prefixIcon: Icons.badge_outlined,
                     validator: (val) =>
                         Validators.validateRequired(val, 'họ và tên'),

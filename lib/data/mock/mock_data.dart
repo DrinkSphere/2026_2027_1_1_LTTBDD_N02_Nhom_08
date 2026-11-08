@@ -126,7 +126,7 @@ class MockData {
           description:
               'Sự hòa quyện hoàn hảo giữa vị đậm đà nguyên bản của cà phê phin cùng lớp kem mặn béo ngậy tan chảy trên đầu lưỡi.',
           imageUrl:
-              'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500',
+              'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800',
           cookingTimeMinutes: 10,
           difficulty: 'Dễ',
           rating: 4.9,
@@ -174,7 +174,7 @@ class MockData {
           description:
               'Mùi thơm nướng quyến rũ đặc trưng từ lá trà Oolong tuyển chọn kết hợp trân châu đường đen dẻo dai đậm đà.',
           imageUrl:
-              'https://images.unsplash.com/photo-1558857563-b371033873b8?w=500',
+              'https://images.unsplash.com/photo-1558857563-b371033873b8?w=800',
           cookingTimeMinutes: 15,
           difficulty: 'Trung bình',
           rating: 4.8,
@@ -221,7 +221,7 @@ class MockData {
           description:
               'Thức uống mocktail mát lạnh thanh lọc cơ thể với vị chua sảng khoái của chanh tươi và hương the mát của bạc hà.',
           imageUrl:
-              'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500',
+              'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800',
           cookingTimeMinutes: 5,
           difficulty: 'Dễ',
           rating: 4.7,
@@ -257,40 +257,6 @@ class MockData {
         ),
       ];
 
-  static List<CommentModel> get comments => [
-        CommentModel(
-          id: 'cmt_1',
-          drinkId: 'drink_1',
-          drinkName: 'Cà Phê Muối Xứ Huế',
-          userId: 'user_member',
-          userName: 'Nguyễn Văn Pha Chế',
-          content: 'Công thức kem muối chuẩn tỷ lệ, vị mặn béo cân bằng rất vừa miệng!',
-          rating: 5.0,
-          isApproved: true,
-          createdAt: DateTime(2026, 2, 1),
-        ),
-        CommentModel(
-          id: 'cmt_2',
-          drinkId: 'drink_1',
-          drinkName: 'Cà Phê Muối Xứ Huế',
-          userId: 'user_test',
-          userName: 'Trần Thị Thảo',
-          content: 'Cà phê hơi đậm một chút, bạn nào thích ngọt nên thêm 5ml sữa đặc nhé.',
-          rating: 4.0,
-          isApproved: true,
-          createdAt: DateTime(2026, 2, 3),
-        ),
-        CommentModel(
-          id: 'cmt_3',
-          drinkId: 'drink_2',
-          drinkName: 'Trà Sữa Oolong Nướng Trân Châu',
-          userId: 'user_guest',
-          userName: 'Lê Hoàng Nam',
-          content: 'Nội dung bình luận mẫu chờ Admin kiểm duyệt trước khi hiển thị công khai.',
-          rating: 5.0,
-          isApproved: false, // Chờ duyệt
-          createdAt: DateTime(2026, 2, 5),
-        ),
-      ];
+  static List<CommentModel> get comments => [];
 }
 

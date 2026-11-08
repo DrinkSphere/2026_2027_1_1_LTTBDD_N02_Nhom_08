@@ -34,6 +34,45 @@ class DrinkProvider extends ChangeNotifier {
     _categories = _storage.loadCategories();
     _ingredients = _storage.loadIngredients();
     _comments = _storage.loadComments();
+
+    // Xóa các bình luận mẫu cũ theo yêu cầu người dùng
+    final hadOldComments =
+        _comments.any((c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+    if (hadOldComments) {
+      _comments.removeWhere(
+          (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+      _storage.saveComments(_comments);
+    }
+
+    // Cập nhật lại link ảnh mới sắc nét hơn cho các đồ uống mặc định nếu đang lưu link cũ
+    bool updatedDrinks = false;
+    for (int i = 0; i < _drinks.length; i++) {
+      if (_drinks[i].id == 'drink_1' &&
+          !_drinks[i].imageUrl.contains('photo-1514432324607')) {
+        _drinks[i] = _drinks[i].copyWith(
+          imageUrl:
+              'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800',
+        );
+        updatedDrinks = true;
+      } else if (_drinks[i].id == 'drink_2' &&
+          !_drinks[i].imageUrl.contains('photo-1558857563')) {
+        _drinks[i] = _drinks[i].copyWith(
+          imageUrl:
+              'https://images.unsplash.com/photo-1558857563-b371033873b8?w=800',
+        );
+        updatedDrinks = true;
+      } else if (_drinks[i].id == 'drink_3' &&
+          !_drinks[i].imageUrl.contains('photo-1551024709')) {
+        _drinks[i] = _drinks[i].copyWith(
+          imageUrl:
+              'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800',
+        );
+        updatedDrinks = true;
+      }
+    }
+    if (updatedDrinks) {
+      _storage.saveDrinks(_drinks);
+    }
   }
 
   // Filtered drinks for UI

@@ -85,6 +85,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                   Image.network(
                     drink.imageUrl,
                     fit: BoxFit.cover,
+                    alignment: Alignment.center,
                     errorBuilder: (_, __, ___) => Container(
                       color: AppColors.primaryLight,
                       child: const Icon(Icons.local_cafe, size: 60, color: AppColors.primary),
@@ -104,9 +105,12 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Meta info row
@@ -321,9 +325,11 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
               ),
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ],
+  ),
+);
   }
 }
 

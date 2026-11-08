@@ -35,12 +35,14 @@ class StorageService {
       await saveUsers(MockData.users);
     }
 
-    final hasCategories = _prefs?.containsKey(AppConstants.keyCategories) ?? false;
+    final hasCategories =
+        _prefs?.containsKey(AppConstants.keyCategories) ?? false;
     if (!hasCategories) {
       await saveCategories(MockData.categories);
     }
 
-    final hasIngredients = _prefs?.containsKey(AppConstants.keyIngredients) ?? false;
+    final hasIngredients =
+        _prefs?.containsKey(AppConstants.keyIngredients) ?? false;
     if (!hasIngredients) {
       await saveIngredients(MockData.ingredients);
     }
@@ -80,7 +82,8 @@ class StorageService {
 
   Future<bool> saveUsers(List<UserModel> users) async {
     final encoded = jsonEncode(users.map((e) => e.toJson()).toList());
-    final success = await _prefs?.setString(AppConstants.keyUsers, encoded) ?? false;
+    final success =
+        await _prefs?.setString(AppConstants.keyUsers, encoded) ?? false;
     return success;
   }
 
@@ -105,7 +108,8 @@ class StorageService {
       return await _prefs?.remove(AppConstants.keyCurrentUser) ?? false;
     }
     final encoded = jsonEncode(user.toJson());
-    return await _prefs?.setString(AppConstants.keyCurrentUser, encoded) ?? false;
+    return await _prefs?.setString(AppConstants.keyCurrentUser, encoded) ??
+        false;
   }
 
   Future<bool> clearSession() async {
@@ -134,7 +138,8 @@ class StorageService {
 
   Future<bool> saveCategories(List<CategoryModel> categories) async {
     final encoded = jsonEncode(categories.map((e) => e.toJson()).toList());
-    return await _prefs?.setString(AppConstants.keyCategories, encoded) ?? false;
+    return await _prefs?.setString(AppConstants.keyCategories, encoded) ??
+        false;
   }
 
   // --- Ingredients ---
@@ -159,7 +164,8 @@ class StorageService {
 
   Future<bool> saveIngredients(List<IngredientModel> ingredients) async {
     final encoded = jsonEncode(ingredients.map((e) => e.toJson()).toList());
-    return await _prefs?.setString(AppConstants.keyIngredients, encoded) ?? false;
+    return await _prefs?.setString(AppConstants.keyIngredients, encoded) ??
+        false;
   }
 
   // --- Drinks ---
