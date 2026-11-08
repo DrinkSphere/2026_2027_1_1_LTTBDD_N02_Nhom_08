@@ -1,16 +1,13 @@
-# lttbdd_n02_nhom_08_2026_2027
+# BÀI TẬP LỚN CUỐI KỲ - MÔN LẬP TRÌNH CHO THIẾT BỊ DI ĐỘNG
 
-A new Flutter project.
+## Đề tài: Quản lý công thức pha chế đồ uống
 
-## Getting Started
+### Thông tin nhóm:
 
-This project is a starting point for a Flutter application.
+- **Tên nhóm:** Nhóm 8
 
-A few resources to get you started if this is your first Flutter project:
+- **Thành viên 1:** Hồ Sỹ Long - MSV: 24100319
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Thành viên 2:** Nguyễn Lê Trung Nguyên - MSV: 24100298
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Thành viên 3:** Phan Thị Ngân Quỳnh - MSV: 24100457
