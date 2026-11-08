@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/auth_provider.dart';
-import '../../admin/screens/admin_dashboard_screen.dart';
 import '../../user/screens/user_main_screen.dart';
 import '../widgets/auth_text_field.dart';
 
@@ -24,7 +23,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String _selectedRole = 'user'; // 'user' hoặc 'admin' để tiện test phân quyền
 
   @override
   void dispose() {
@@ -50,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text,
       password: _passwordController.text,
       phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
-      role: _selectedRole,
+      role: 'user', // Mặc định luôn là người dùng (User)
     );
 
     if (!mounted) return;
@@ -73,12 +71,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      // Chuyển thẳng vào giao diện tương ứng theo phân quyền
+      // Chuyển thẳng vào giao diện người dùng
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => _selectedRole == 'admin'
-              ? const AdminDashboardScreen()
-              : const UserMainScreen(),
+          builder: (_) => const UserMainScreen(),
         ),
         (route) => false,
       );
@@ -243,65 +239,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           _obscureConfirmPassword = !_obscureConfirmPassword;
                         });
                       },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Chọn vai trò tài khoản (User / Admin)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Icon(
-                              Icons.shield_outlined,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Loại tài khoản:',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedRole,
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'user',
-                                child: Text('Người dùng (User)'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'admin',
-                                child: Text('Quản trị viên (Admin)'),
-                              ),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _selectedRole = val;
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 28),
