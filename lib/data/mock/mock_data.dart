@@ -198,7 +198,7 @@ class MockData {
       description:
           'Món thức uống trứ danh Sài Gòn với 3 tầng đẹp mắt: sữa đặc ngọt ngào, sữa tươi thanh béo và lớp cốt cà phê phin thơm lừng trên cùng.',
       imageUrl:
-          'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800',
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzR55-tXysz-Y12DmxXUwbfh4sVXRFHRELcODpIgerhA&s=10',
       cookingTimeMinutes: 8,
       difficulty: 'Dễ',
       rating: 5.0,
@@ -286,7 +286,7 @@ class MockData {
       description:
           'Trà trái cây thơm nức hương sả tươi, vị chua ngọt dịu từ nước cốt cam tươi cùng những miếng đào ngâm giòn ngọt mọng nước.',
       imageUrl:
-          'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800',
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkzCE4HvRc5Sj3cLv-8kpzePRKWRnNFKOivjkkSpFGuA&s=10',
       cookingTimeMinutes: 10,
       difficulty: 'Dễ',
       rating: 4.9,
