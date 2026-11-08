@@ -3,6 +3,7 @@ import '../data/models/drink_model.dart';
 import '../data/models/category_model.dart';
 import '../data/models/ingredient_model.dart';
 import '../data/models/comment_model.dart';
+import '../data/mock/mock_data.dart';
 import '../data/services/storage_service.dart';
 
 class DrinkProvider extends ChangeNotifier {
@@ -70,6 +71,14 @@ class DrinkProvider extends ChangeNotifier {
         updatedDrinks = true;
       }
     }
+    // Tự động bổ sung các công thức mới cho từng danh mục (Bạc xỉu, Trà đào cam sả, Nước ép...) nếu chưa có
+    for (var mockDrink in MockData.drinks) {
+      if (!_drinks.any((d) => d.id == mockDrink.id)) {
+        _drinks.add(mockDrink);
+        updatedDrinks = true;
+      }
+    }
+
     if (updatedDrinks) {
       _storage.saveDrinks(_drinks);
     }

@@ -116,6 +116,24 @@ class MockData {
           unit: 'lon',
           description: 'Ướp lạnh trước khi pha',
         ),
+        IngredientModel(
+          id: 'ing_orange',
+          name: 'Cam sành tươi',
+          unit: 'quả',
+          description: 'Vắt nước mọng ngọt tự nhiên',
+        ),
+        IngredientModel(
+          id: 'ing_peach',
+          name: 'Đào ngâm giòn',
+          unit: 'miếng',
+          description: 'Cắt múi cau trang trí và ăn kèm',
+        ),
+        IngredientModel(
+          id: 'ing_lemongrass',
+          name: 'Sả tươi',
+          unit: 'cây',
+          description: 'Đập dập nấu nước cốt thanh dịu',
+        ),
       ];
 
   static List<DrinkModel> get drinks => [
@@ -168,6 +186,47 @@ class MockData {
           ],
         ),
         DrinkModel(
+          id: 'drink_bac_xiu',
+          name: 'Bạc Xỉu 3 Tầng Sài Gòn',
+          categoryId: 'cat_coffee',
+          description:
+              'Món thức uống trứ danh Sài Gòn với 3 tầng đẹp mắt: sữa đặc ngọt ngào, sữa tươi thanh béo và lớp cốt cà phê phin thơm lừng trên cùng.',
+          imageUrl:
+              'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800',
+          cookingTimeMinutes: 8,
+          difficulty: 'Dễ',
+          rating: 5.0,
+          creatorId: 'user_admin',
+          creatorName: 'Quản trị viên',
+          isApproved: true,
+          ingredients: [
+            DrinkIngredientItem(
+              ingredientId: 'ing_condensed_milk',
+              ingredientName: 'Sữa đặc Ông Thọ',
+              amount: 30,
+              unit: 'ml',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_fresh_milk',
+              ingredientName: 'Sữa tươi không đường',
+              amount: 80,
+              unit: 'ml',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_coffee',
+              ingredientName: 'Cà phê Robusta nguyên chất',
+              amount: 25,
+              unit: 'ml',
+            ),
+          ],
+          steps: [
+            'Rót 30ml sữa đặc vào đáy ly thủy tinh cao để tạo tầng thứ nhất.',
+            'Thêm đầy đá viên vào ly thật nhẹ nhàng.',
+            'Rót từ từ 80ml sữa tươi không đường vào để tạo tầng trắng sữa thứ hai.',
+            'Đánh bông nhẹ 25ml nước cốt cà phê phin rồi rót lên trên cùng tạo thành 3 tầng hoàn hảo.',
+          ],
+        ),
+        DrinkModel(
           id: 'drink_2',
           name: 'Trà Sữa Oolong Nướng Trân Châu',
           categoryId: 'cat_milk_tea',
@@ -215,6 +274,53 @@ class MockData {
           ],
         ),
         DrinkModel(
+          id: 'drink_tra_dao',
+          name: 'Trà Đào Cam Sả Tươi Mát',
+          categoryId: 'cat_milk_tea',
+          description:
+              'Trà trái cây thơm nức hương sả tươi, vị chua ngọt dịu từ nước cốt cam tươi cùng những miếng đào ngâm giòn ngọt mọng nước.',
+          imageUrl:
+              'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800',
+          cookingTimeMinutes: 10,
+          difficulty: 'Dễ',
+          rating: 4.9,
+          creatorId: 'user_admin',
+          creatorName: 'Quản trị viên',
+          isApproved: true,
+          ingredients: [
+            DrinkIngredientItem(
+              ingredientId: 'ing_oolong_tea',
+              ingredientName: 'Trà Oolong hoặc trà đen',
+              amount: 10,
+              unit: 'g',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_orange',
+              ingredientName: 'Cam sành tươi',
+              amount: 1,
+              unit: 'quả',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_lemongrass',
+              ingredientName: 'Sả tươi',
+              amount: 2,
+              unit: 'cây',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_peach',
+              ingredientName: 'Đào ngâm giòn',
+              amount: 3,
+              unit: 'miếng',
+            ),
+          ],
+          steps: [
+            'Đập dập 2 cây sả nấu cùng 250ml nước sôi, sau đó cho trà vào ủ trong 8 phút rồi lọc lấy nước cốt sả trà.',
+            'Vắt lấy 40ml nước cốt cam sành tươi, hòa cùng 20ml siro đường hoặc nước ngâm đào.',
+            'Khuấy đều nước cốt trà sả cùng nước cam tươi trong bình lắc với đá viên.',
+            'Rót ra ly, xếp các miếng đào ngâm giòn lên trên cùng cọng sả trang trí.',
+          ],
+        ),
+        DrinkModel(
           id: 'drink_3',
           name: 'Mojito Chanh Bạc Hà Sảng Khoái',
           categoryId: 'cat_soda',
@@ -255,8 +361,41 @@ class MockData {
             'Rót đầy soda hoặc 7up lên trên, trang trí bằng ngọn bạc hà tươi.',
           ],
         ),
+        DrinkModel(
+          id: 'drink_juice',
+          name: 'Nước Ép Cam Cà Rốt Tươi',
+          categoryId: 'cat_juice',
+          description:
+              'Nước ép nguyên chất dồi dào Vitamin A và C, thanh lọc cơ thể, sáng da và giải nhiệt tức thì.',
+          imageUrl:
+              'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=800',
+          cookingTimeMinutes: 6,
+          difficulty: 'Dễ',
+          rating: 4.8,
+          creatorId: 'user_admin',
+          creatorName: 'Quản trị viên',
+          isApproved: true,
+          ingredients: [
+            DrinkIngredientItem(
+              ingredientId: 'ing_orange',
+              ingredientName: 'Cam sành tươi',
+              amount: 2,
+              unit: 'quả',
+            ),
+            DrinkIngredientItem(
+              ingredientId: 'ing_salt',
+              ingredientName: 'Muối tinh hồng',
+              amount: 0.5,
+              unit: 'g',
+            ),
+          ],
+          steps: [
+            'Cam rửa sạch, vắt lấy 150ml nước cốt nguyên chất.',
+            'Cà rốt gọt vỏ, ép lấy 100ml nước cốt cà rốt.',
+            'Trộn đều nước cam và cà rốt, thêm chút xíu muối và đá lạnh, thưởng thức tươi mới.',
+          ],
+        ),
       ];
 
   static List<CommentModel> get comments => [];
 }
-

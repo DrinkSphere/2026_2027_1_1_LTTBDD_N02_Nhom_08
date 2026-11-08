@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../data/models/category_model.dart';
 import '../../../providers/drink_provider.dart';
+import 'manage_drinks_screen.dart';
 
 class ManageCategoriesScreen extends StatelessWidget {
   const ManageCategoriesScreen({super.key});
@@ -113,7 +114,9 @@ class ManageCategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = context.watch<DrinkProvider>().categories;
+    final drinkProvider = context.watch<DrinkProvider>();
+    final categories = drinkProvider.categories;
+    final allDrinks = drinkProvider.drinks;
 
     return Scaffold(
       appBar: AppBar(
@@ -125,57 +128,90 @@ class ManageCategoriesScreen extends StatelessWidget {
         label: const Text('Thêm Danh Mục', style: TextStyle(color: Colors.white)),
         onPressed: () => _showCategoryDialog(context),
       ),
-      body: categories.isEmpty
-          ? const Center(child: Text('Chưa có danh mục nào.'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final cat = categories[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(10),
-                        image: (cat.imageUrl != null && cat.imageUrl!.isNotEmpty)
-                            ? DecorationImage(
-                                image: NetworkImage(cat.imageUrl!),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: categories.isEmpty
+              ? const Center(child: Text('Chưa có danh mục nào.'))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final cat = categories[index];
+                    final drinkCount = allDrinks.where((d) => d.categoryId == cat.id).length;
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        onTap: () {
+                          // Bấm vào danh mục sẽ chuyển sang xem và quản lý các công thức của danh mục đó
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ManageDrinksScreen(initialCategoryId: cat.id),
+                            ),
+                          );
+                        },
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        leading: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(10),
+                            image: (cat.imageUrl != null && cat.imageUrl!.isNotEmpty)
+                                ? DecorationImage(
+                                    image: NetworkImage(cat.imageUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: (cat.imageUrl == null || cat.imageUrl!.isEmpty)
+                              ? const Icon(Icons.category, color: AppColors.primary)
+                              : null,
+                        ),
+                        title: Text(cat.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (cat.description != null && cat.description!.isNotEmpty)
+                              Text(
+                                cat.description!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                              ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '☕ $drinkCount công thức • Chạm để xem chi tiết →',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, color: AppColors.info, size: 20),
+                              tooltip: 'Sửa danh mục',
+                              onPressed: () => _showCategoryDialog(context, cat),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+                              tooltip: 'Xóa danh mục',
+                              onPressed: () => _confirmDelete(context, cat),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: (cat.imageUrl == null || cat.imageUrl!.isEmpty)
-                          ? const Icon(Icons.category, color: AppColors.primary)
-                          : null,
-                    ),
-                    title: Text(cat.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                      cat.description ?? 'Không có mô tả',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: AppColors.info, size: 20),
-                          onPressed: () => _showCategoryDialog(context, cat),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
-                          onPressed: () => _confirmDelete(context, cat),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+        ),
+      ),
     );
   }
 }
