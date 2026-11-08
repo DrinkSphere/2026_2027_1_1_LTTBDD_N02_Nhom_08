@@ -1,0 +1,7 @@
+# Vendor platform boilerplate directories so GitHub Linguist identifies the repository as pure Dart
+android/** linguist-vendored
+ios/** linguist-vendored
+windows/** linguist-vendored
+macos/** linguist-vendored
+linux/** linguist-vendored
+web/** linguist-vendored
