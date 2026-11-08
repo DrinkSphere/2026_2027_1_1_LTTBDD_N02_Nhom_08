@@ -47,6 +47,10 @@ class AuthProvider extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 500));
 
     final normalizedEmail = email.trim().toLowerCase();
+    final cleanPassword = password.trim();
+
+    // Luôn đồng bộ danh sách user mới nhất từ storage
+    _users = _storage.loadUsers();
     final isExist = _users.any((u) => u.email.toLowerCase() == normalizedEmail);
 
     if (isExist) {
@@ -60,7 +64,7 @@ class AuthProvider extends ChangeNotifier {
       id: 'user_${DateTime.now().millisecondsSinceEpoch}',
       name: name.trim(),
       email: normalizedEmail,
-      password: password,
+      password: cleanPassword,
       phone: phone?.trim(),
       role: role,
       createdAt: DateTime.now(),
@@ -89,9 +93,14 @@ class AuthProvider extends ChangeNotifier {
 
     await Future.delayed(const Duration(milliseconds: 500));
 
+    // Luôn nạp lại danh sách user từ storage để đảm bảo khớp dữ liệu mới nhất
+    _users = _storage.loadUsers();
+
     final normalizedEmail = email.trim().toLowerCase();
+    final cleanPassword = password.trim();
+
     final index = _users.indexWhere(
-      (u) => u.email.toLowerCase() == normalizedEmail && u.password == password,
+      (u) => u.email.toLowerCase() == normalizedEmail && u.password.trim() == cleanPassword,
     );
 
     if (index == -1) {

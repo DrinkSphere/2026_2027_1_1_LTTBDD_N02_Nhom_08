@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../models/user_model.dart';
@@ -24,21 +25,37 @@ class StorageService {
   }
 
   Future<void> _seedInitialDataIfNeeded() async {
-    final isInitialized = _prefs?.getBool(AppConstants.keyIsInitialized) ?? false;
-    if (!isInitialized) {
-      // Seed users
-      await saveUsers(MockData.users);
-      // Seed categories
-      await saveCategories(MockData.categories);
-      // Seed ingredients
-      await saveIngredients(MockData.ingredients);
-      // Seed drinks
-      await saveDrinks(MockData.drinks);
-      // Seed comments
-      await saveComments(MockData.comments);
+    // Tải lại bộ nhớ cache mới nhất từ đĩa/localStorage
+    await _prefs?.reload();
 
-      await _prefs?.setBool(AppConstants.keyIsInitialized, true);
+    // Kiểm tra độc lập từng bảng, nếu chưa có mới nạp mock ban đầu
+    // Đảm bảo TUYỆT ĐỐI không bao giờ ghi đè lên dữ liệu người dùng đã đăng ký / thêm mới
+    final hasUsers = _prefs?.containsKey(AppConstants.keyUsers) ?? false;
+    if (!hasUsers) {
+      await saveUsers(MockData.users);
     }
+
+    final hasCategories = _prefs?.containsKey(AppConstants.keyCategories) ?? false;
+    if (!hasCategories) {
+      await saveCategories(MockData.categories);
+    }
+
+    final hasIngredients = _prefs?.containsKey(AppConstants.keyIngredients) ?? false;
+    if (!hasIngredients) {
+      await saveIngredients(MockData.ingredients);
+    }
+
+    final hasDrinks = _prefs?.containsKey(AppConstants.keyDrinks) ?? false;
+    if (!hasDrinks) {
+      await saveDrinks(MockData.drinks);
+    }
+
+    final hasComments = _prefs?.containsKey(AppConstants.keyComments) ?? false;
+    if (!hasComments) {
+      await saveComments(MockData.comments);
+    }
+
+    await _prefs?.setBool(AppConstants.keyIsInitialized, true);
   }
 
   // --- Users ---
@@ -49,15 +66,22 @@ class StorageService {
     }
     try {
       final List<dynamic> decoded = jsonDecode(rawJson) as List<dynamic>;
-      return decoded.map((e) => UserModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) {
+      return decoded.map((e) {
+        if (e is Map) {
+          return UserModel.fromJson(Map<String, dynamic>.from(e));
+        }
+        return UserModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      debugPrint('Lỗi loadUsers từ storage: $e');
       return MockData.users;
     }
   }
 
   Future<bool> saveUsers(List<UserModel> users) async {
     final encoded = jsonEncode(users.map((e) => e.toJson()).toList());
-    return await _prefs?.setString(AppConstants.keyUsers, encoded) ?? false;
+    final success = await _prefs?.setString(AppConstants.keyUsers, encoded) ?? false;
+    return success;
   }
 
   // --- Current User Session ---
@@ -65,9 +89,13 @@ class StorageService {
     final rawJson = _prefs?.getString(AppConstants.keyCurrentUser);
     if (rawJson == null || rawJson.isEmpty) return null;
     try {
-      final Map<String, dynamic> decoded = jsonDecode(rawJson) as Map<String, dynamic>;
-      return UserModel.fromJson(decoded);
-    } catch (_) {
+      final dynamic decoded = jsonDecode(rawJson);
+      if (decoded is Map) {
+        return UserModel.fromJson(Map<String, dynamic>.from(decoded));
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Lỗi loadCurrentUser: $e');
       return null;
     }
   }
@@ -92,8 +120,14 @@ class StorageService {
     }
     try {
       final List<dynamic> decoded = jsonDecode(rawJson) as List<dynamic>;
-      return decoded.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) {
+      return decoded.map((e) {
+        if (e is Map) {
+          return CategoryModel.fromJson(Map<String, dynamic>.from(e));
+        }
+        return CategoryModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      debugPrint('Lỗi loadCategories: $e');
       return MockData.categories;
     }
   }
@@ -111,8 +145,14 @@ class StorageService {
     }
     try {
       final List<dynamic> decoded = jsonDecode(rawJson) as List<dynamic>;
-      return decoded.map((e) => IngredientModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) {
+      return decoded.map((e) {
+        if (e is Map) {
+          return IngredientModel.fromJson(Map<String, dynamic>.from(e));
+        }
+        return IngredientModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      debugPrint('Lỗi loadIngredients: $e');
       return MockData.ingredients;
     }
   }
@@ -130,8 +170,14 @@ class StorageService {
     }
     try {
       final List<dynamic> decoded = jsonDecode(rawJson) as List<dynamic>;
-      return decoded.map((e) => DrinkModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) {
+      return decoded.map((e) {
+        if (e is Map) {
+          return DrinkModel.fromJson(Map<String, dynamic>.from(e));
+        }
+        return DrinkModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      debugPrint('Lỗi loadDrinks: $e');
       return MockData.drinks;
     }
   }
@@ -149,8 +195,14 @@ class StorageService {
     }
     try {
       final List<dynamic> decoded = jsonDecode(rawJson) as List<dynamic>;
-      return decoded.map((e) => CommentModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) {
+      return decoded.map((e) {
+        if (e is Map) {
+          return CommentModel.fromJson(Map<String, dynamic>.from(e));
+        }
+        return CommentModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      debugPrint('Lỗi loadComments: $e');
       return MockData.comments;
     }
   }
@@ -160,4 +212,3 @@ class StorageService {
     return await _prefs?.setString(AppConstants.keyComments, encoded) ?? false;
   }
 }
-
