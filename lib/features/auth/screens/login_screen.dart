@@ -70,11 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
-      // Điều hướng theo phân quyền User / Admin
-      Navigator.of(context).pushReplacement(
+      // Điều hướng theo phân quyền User / Admin và xóa sạch stack cũ
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => isAdmin ? const AdminDashboardScreen() : const UserMainScreen(),
         ),
+        (route) => false,
       );
     } else {
       final errorMsg = authProvider.errorMessage ?? 'Đăng nhập thất bại.';
@@ -323,3 +324,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

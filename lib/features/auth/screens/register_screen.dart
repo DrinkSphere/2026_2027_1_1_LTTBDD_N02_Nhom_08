@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/auth_provider.dart';
+import '../../admin/screens/admin_dashboard_screen.dart';
+import '../../user/screens/user_main_screen.dart';
 import '../widgets/auth_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -61,7 +63,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Icon(Icons.check_circle, color: Colors.white),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Đăng ký tài khoản ${_nameController.text} thành công!'),
+                child: Text(
+                  'Đăng ký tài khoản ${_nameController.text} thành công!',
+                ),
               ),
             ],
           ),
@@ -69,10 +73,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      // Tự động quay về hoặc chuyển tiếp theo session
-      Navigator.of(context).pop();
+      // Chuyển thẳng vào giao diện tương ứng theo phân quyền
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => _selectedRole == 'admin'
+              ? const AdminDashboardScreen()
+              : const UserMainScreen(),
+        ),
+        (route) => false,
+      );
     } else {
-      final errorMsg = authProvider.errorMessage ?? 'Đăng ký thất bại, vui lòng thử lại.';
+      final errorMsg =
+          authProvider.errorMessage ?? 'Đăng ký thất bại, vui lòng thử lại.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -153,7 +165,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     label: 'Họ và tên',
                     hintText: 'Ví dụ: Nguyễn Văn Pha Chế',
                     prefixIcon: Icons.badge_outlined,
-                    validator: (val) => Validators.validateRequired(val, 'họ và tên'),
+                    validator: (val) =>
+                        Validators.validateRequired(val, 'họ và tên'),
                   ),
                   const SizedBox(height: 16),
 
@@ -189,7 +202,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: Validators.validatePassword,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
@@ -217,7 +232,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        _obscureConfirmPassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
@@ -232,7 +249,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Chọn vai trò tài khoản (User / Admin)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -243,7 +263,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                            Icon(
+                              Icons.shield_outlined,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Loại tài khoản:',
@@ -259,8 +283,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: DropdownButton<String>(
                             value: _selectedRole,
                             items: const [
-                              DropdownMenuItem(value: 'user', child: Text('Người dùng (User)')),
-                              DropdownMenuItem(value: 'admin', child: Text('Quản trị viên (Admin)')),
+                              DropdownMenuItem(
+                                value: 'user',
+                                child: Text('Người dùng (User)'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'admin',
+                                child: Text('Quản trị viên (Admin)'),
+                              ),
                             ],
                             onChanged: (val) {
                               if (val != null) {
@@ -293,7 +323,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           )
                         : const Text(
                             'Đăng Ký',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                   const SizedBox(height: 20),

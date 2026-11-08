@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/drink_provider.dart';
 import '../../admin/screens/admin_dashboard_screen.dart';
+import '../../auth/screens/login_screen.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -29,8 +30,13 @@ class ProfileScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.of(ctx).pop();
+              final navigator = Navigator.of(context, rootNavigator: true);
+              Navigator.of(ctx).pop(); // Đóng hộp thoại xác nhận
               await context.read<AuthProvider>().logout();
+              navigator.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,

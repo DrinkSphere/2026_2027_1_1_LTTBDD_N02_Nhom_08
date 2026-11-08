@@ -15,3 +15,4 @@ class AppConstants {
   static const String keyComments = 'storage_comments';
   static const String keyIsInitialized = 'storage_is_initialized';
 }
+

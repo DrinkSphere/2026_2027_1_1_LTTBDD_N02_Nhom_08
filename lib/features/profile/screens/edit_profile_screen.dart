@@ -327,3 +327,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
+
