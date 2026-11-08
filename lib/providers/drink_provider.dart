@@ -13,6 +13,7 @@ class DrinkProvider extends ChangeNotifier {
   List<CategoryModel> _categories = [];
   List<IngredientModel> _ingredients = [];
   List<CommentModel> _comments = [];
+  final Set<String> _savedDrinkIds = {};
 
   String _selectedCategoryId = 'all';
   String _searchQuery = '';
@@ -29,6 +30,17 @@ class DrinkProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get selectedCategoryId => _selectedCategoryId;
   String get searchQuery => _searchQuery;
+  List<DrinkModel> get savedDrinks =>
+      _drinks.where((drink) => _savedDrinkIds.contains(drink.id)).toList();
+
+  bool isDrinkSaved(String drinkId) => _savedDrinkIds.contains(drinkId);
+
+  void toggleDrinkSaved(String drinkId) {
+    if (!_savedDrinkIds.add(drinkId)) {
+      _savedDrinkIds.remove(drinkId);
+    }
+    notifyListeners();
+  }
 
   void _init() {
     _drinks = _storage.loadDrinks();
@@ -37,11 +49,13 @@ class DrinkProvider extends ChangeNotifier {
     _comments = _storage.loadComments();
 
     // Xóa các bình luận mẫu cũ theo yêu cầu người dùng
-    final hadOldComments =
-        _comments.any((c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+    final hadOldComments = _comments.any(
+      (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3',
+    );
     if (hadOldComments) {
       _comments.removeWhere(
-          (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+        (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3',
+      );
       _storage.saveComments(_comments);
     }
 
@@ -87,8 +101,10 @@ class DrinkProvider extends ChangeNotifier {
   // Filtered drinks for UI
   List<DrinkModel> get filteredDrinks {
     return _drinks.where((d) {
-      final matchesCategory = _selectedCategoryId == 'all' || d.categoryId == _selectedCategoryId;
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesCategory =
+          _selectedCategoryId == 'all' || d.categoryId == _selectedCategoryId;
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           d.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           d.description.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -192,7 +208,9 @@ class DrinkProvider extends ChangeNotifier {
 
   // --- COMMENTS MANAGEMENT (Mục 1.5 Kiểm duyệt bình luận) ---
   List<CommentModel> getCommentsForDrink(String drinkId) {
-    return _comments.where((c) => c.drinkId == drinkId && c.isApproved).toList();
+    return _comments
+        .where((c) => c.drinkId == drinkId && c.isApproved)
+        .toList();
   }
 
   List<CommentModel> get pendingComments {

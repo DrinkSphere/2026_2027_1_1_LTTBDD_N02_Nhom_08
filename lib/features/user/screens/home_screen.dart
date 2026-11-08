@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/drink_model.dart';
 import '../../../providers/drink_provider.dart';
 import 'drink_detail_screen.dart';
 
@@ -16,9 +17,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Công Thức Đồ Uống'),
-      ),
+      appBar: AppBar(title: const Text('Công Thức Đồ Uống')),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -26,7 +25,10 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Search box
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: TextField(
                   onChanged: (val) => drinkProvider.setSearchQuery(val),
                   decoration: const InputDecoration(
@@ -50,10 +52,15 @@ class HomeScreen extends StatelessWidget {
                         selected: selectedCat == 'all',
                         selectedColor: AppColors.primary,
                         labelStyle: TextStyle(
-                          color: selectedCat == 'all' ? Colors.white : AppColors.textPrimary,
-                          fontWeight: selectedCat == 'all' ? FontWeight.bold : FontWeight.normal,
+                          color: selectedCat == 'all'
+                              ? Colors.white
+                              : AppColors.textPrimary,
+                          fontWeight: selectedCat == 'all'
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
-                        onSelected: (_) => drinkProvider.setCategoryFilter('all'),
+                        onSelected: (_) =>
+                            drinkProvider.setCategoryFilter('all'),
                       ),
                     ),
                     ...categories.map((c) {
@@ -65,10 +72,15 @@ class HomeScreen extends StatelessWidget {
                           selected: isSelected,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textPrimary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
-                          onSelected: (_) => drinkProvider.setCategoryFilter(c.id),
+                          onSelected: (_) =>
+                              drinkProvider.setCategoryFilter(c.id),
                         ),
                       );
                     }),
@@ -80,138 +92,235 @@ class HomeScreen extends StatelessWidget {
               // Drinks list
               Expanded(
                 child: drinks.isEmpty
-                    ? const Center(child: Text('Không có công thức nào phù hợp.'))
+                    ? const Center(
+                        child: Text('Không có công thức nào phù hợp.'),
+                      )
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         itemCount: drinks.length,
                         itemBuilder: (context, index) {
                           final drink = drinks[index];
-                          final catName = drinkProvider.getCategoryName(drink.categoryId);
+                          final catName = drinkProvider.getCategoryName(
+                            drink.categoryId,
+                          );
 
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 18),
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => DrinkDetailScreen(drink: drink),
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Ảnh đồ uống rõ nét tỷ lệ 16:10
-                                  Stack(
-                                    children: [
-                                      AspectRatio(
-                                        aspectRatio: 16 / 10,
-                                        child: Image.network(
-                                          drink.imageUrl,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          alignment: Alignment.center,
-                                          errorBuilder: (_, __, ___) => Container(
-                                            color: AppColors.primaryLight,
-                                            child: const Icon(Icons.local_cafe, size: 50, color: AppColors.primary),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 12,
-                                        left: 12,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withValues(alpha: 0.65),
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            catName,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 12,
-                                        right: 12,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.star, color: AppColors.accent, size: 14),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '${drink.rating}',
-                                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(14),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          drink.name,
-                                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          drink.description,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.timer_outlined, size: 16, color: AppColors.textSecondary),
-                                            const SizedBox(width: 4),
-                                            Text('${drink.cookingTimeMinutes} phút',
-                                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                                            const SizedBox(width: 14),
-                                            const Icon(Icons.bar_chart_outlined, size: 16, color: AppColors.textSecondary),
-                                            const SizedBox(width: 4),
-                                            Text(drink.difficulty,
-                                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                                            const Spacer(),
-                                            const Text(
-                                              'Xem công thức →',
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          return DrinkCard(
+                            drink: drink,
+                            categoryName: catName,
+                            isSaved: drinkProvider.isDrinkSaved(drink.id),
+                            onSaveToggle: () =>
+                                drinkProvider.toggleDrinkSaved(drink.id),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      DrinkDetailScreen(drink: drink),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DrinkCard extends StatelessWidget {
+  final DrinkModel drink;
+  final String categoryName;
+  final bool isSaved;
+  final VoidCallback? onSaveToggle;
+  final VoidCallback? onTap;
+
+  const DrinkCard({
+    super.key,
+    required this.drink,
+    required this.categoryName,
+    this.isSaved = false,
+    this.onSaveToggle,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 18),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: Image.network(
+                    drink.imageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.primaryLight,
+                      child: const Icon(
+                        Icons.local_cafe,
+                        size: 50,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      categoryName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: DecoratedBox(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      tooltip: isSaved ? 'Bỏ lưu đồ uống' : 'Lưu đồ uống',
+                      onPressed: onSaveToggle,
+                      icon: Icon(
+                        isSaved ? Icons.bookmark : Icons.bookmark_border,
+                        color: isSaved
+                            ? AppColors.accent
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 58,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.accent,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${drink.rating}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    drink.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    drink.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.timer_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${drink.cookingTimeMinutes} phút',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Icon(
+                        Icons.bar_chart_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        drink.difficulty,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        'Xem công thức →',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../profile/screens/profile_screen.dart';
 import 'home_screen.dart';
+import 'saved_drinks_screen.dart';
 
 class UserMainScreen extends StatefulWidget {
   const UserMainScreen({super.key});
@@ -15,6 +16,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
+    SavedDrinksScreen(),
     ProfileScreen(),
   ];
 
@@ -43,6 +45,11 @@ class _UserMainScreenState extends State<UserMainScreen> {
             label: 'Công Thức',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark_border_rounded),
+            activeIcon: Icon(Icons.bookmark_rounded),
+            label: 'Đã Lưu',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline_rounded),
             activeIcon: Icon(Icons.person_rounded),
             label: 'Tài Khoản',
@@ -52,4 +59,3 @@ class _UserMainScreenState extends State<UserMainScreen> {
     );
   }
 }
-
