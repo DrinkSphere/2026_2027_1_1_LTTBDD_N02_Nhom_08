@@ -55,7 +55,6 @@ class ProfileScreen extends StatelessWidget {
     final drinkProvider = context.watch<DrinkProvider>();
     final user = authProvider.currentUser;
 
-    final myDrinksCount = drinkProvider.drinks.where((d) => d.creatorId == user?.id).length;
     final myCommentsCount = drinkProvider.comments.where((c) => c.userId == user?.id).length;
 
     return Scaffold(
@@ -74,9 +73,12 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 680),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
           children: [
             // Header card
             Container(
@@ -162,69 +164,62 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Metrics row
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+            // Thống kê bình luận & đóng góp
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      color: AppColors.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: const Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      color: AppColors.secondary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.local_cafe_outlined, color: AppColors.primary, size: 28),
-                        const SizedBox(height: 8),
                         Text(
-                          '$myDrinksCount',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                          'Bình luận & Góp ý đã gửi',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Công thức đã tạo',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        SizedBox(height: 2),
+                        Text(
+                          'Đóng góp cảm nhận cho các công thức đồ uống',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.secondary, size: 28),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$myCommentsCount',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Bình luận & Góp ý',
-                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                        ),
-                      ],
+                  Text(
+                    '$myCommentsCount',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.secondary,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -312,6 +307,8 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
