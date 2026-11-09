@@ -37,11 +37,13 @@ class DrinkProvider extends ChangeNotifier {
     _comments = _storage.loadComments();
 
     // Xóa các bình luận mẫu cũ theo yêu cầu người dùng
-    final hadOldComments =
-        _comments.any((c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+    final hadOldComments = _comments.any(
+      (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3',
+    );
     if (hadOldComments) {
       _comments.removeWhere(
-          (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3');
+        (c) => c.id == 'cmt_1' || c.id == 'cmt_2' || c.id == 'cmt_3',
+      );
       _storage.saveComments(_comments);
     }
 
@@ -87,8 +89,10 @@ class DrinkProvider extends ChangeNotifier {
   // Filtered drinks for UI
   List<DrinkModel> get filteredDrinks {
     return _drinks.where((d) {
-      final matchesCategory = _selectedCategoryId == 'all' || d.categoryId == _selectedCategoryId;
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesCategory =
+          _selectedCategoryId == 'all' || d.categoryId == _selectedCategoryId;
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           d.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           d.description.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -192,7 +196,9 @@ class DrinkProvider extends ChangeNotifier {
 
   // --- COMMENTS MANAGEMENT (Mục 1.5 Kiểm duyệt bình luận) ---
   List<CommentModel> getCommentsForDrink(String drinkId) {
-    return _comments.where((c) => c.drinkId == drinkId && c.isApproved).toList();
+    return _comments
+        .where((c) => c.drinkId == drinkId && c.isApproved)
+        .toList();
   }
 
   List<CommentModel> get pendingComments {
@@ -203,6 +209,57 @@ class DrinkProvider extends ChangeNotifier {
     _comments.insert(0, comment);
     await _storage.saveComments(_comments);
     notifyListeners();
+  }
+
+  Future<bool> updateUserComment({
+    required String commentId,
+    required String userId,
+    required String content,
+    required double rating,
+  }) async {
+    final index = _comments.indexWhere((comment) => comment.id == commentId);
+    if (index == -1 ||
+        _comments[index].userId != userId ||
+        content.trim().isEmpty ||
+        rating < 1 ||
+        rating > 5) {
+      return false;
+    }
+
+    final original = _comments[index];
+    _comments[index] = original.copyWith(
+      content: content.trim(),
+      rating: rating,
+      isApproved: false,
+    );
+    final saved = await _storage.saveComments(_comments);
+    if (!saved) {
+      _comments[index] = original;
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> deleteUserComment({
+    required String commentId,
+    required String userId,
+  }) async {
+    final index = _comments.indexWhere((comment) => comment.id == commentId);
+    if (index == -1 || _comments[index].userId != userId) {
+      return false;
+    }
+
+    final removed = _comments.removeAt(index);
+    final saved = await _storage.saveComments(_comments);
+    if (!saved) {
+      _comments.insert(index, removed);
+      return false;
+    }
+
+    notifyListeners();
+    return true;
   }
 
   Future<void> approveComment(String id) async {

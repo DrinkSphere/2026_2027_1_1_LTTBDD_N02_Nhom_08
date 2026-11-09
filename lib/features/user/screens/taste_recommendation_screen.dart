@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/drink_provider.dart';
+import 'drink_detail_screen.dart';
+import '../services/drink_recommendation_service.dart';
 
 class TasteRecommendationScreen extends StatefulWidget {
   const TasteRecommendationScreen({super.key});
@@ -25,6 +30,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
     'Nước trái cây',
     'Không quan trọng',
   ];
+  final _recommendationService = DrinkRecommendationService();
 
   void nextStep() {
     if (currentStep == 0 && selectedTaste == null) return;
@@ -53,6 +59,16 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
     });
   }
 
+  List<DrinkRecommendation> getRecommendedDrinks() {
+    final provider = context.read<DrinkProvider>();
+    return _recommendationService.recommend(
+      drinks: provider.drinks,
+      taste: selectedTaste!,
+      temperature: selectedTemperature!,
+      type: selectedType!,
+    );
+  }
+
   Widget buildOptions(
     List<String> options,
     String? selectedValue,
@@ -60,15 +76,19 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
   ) {
     return Column(
       children: options.map((option) {
+        final isSelected = option == selectedValue;
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
-          child: RadioListTile<String>(
+          child: ListTile(
             title: Text(option),
-            value: option,
-            groupValue: selectedValue,
-            onChanged: (value) {
-              if (value != null) onSelected(value);
-            },
+            leading: Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected ? Theme.of(context).colorScheme.primary : null,
+            ),
+            selected: isSelected,
+            onTap: () => onSelected(option),
           ),
         );
       }).toList(),
@@ -162,33 +182,98 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
   }
 
   Widget buildResult() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Khẩu vị của bạn',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
+    final recommendations = getRecommendedDrinks();
 
-        Text('Khẩu vị: $selectedTaste'),
-        Text('Nhiệt độ: $selectedTemperature'),
-        Text('Loại đồ uống: $selectedType'),
-
-        const SizedBox(height: 30),
-
-        const Text('Dưới đây là gợi ý đồ uống dựa trên sở thích của bạn:'),
-
-        const Spacer(),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: restart,
-            child: const Text('Chọn lại'),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Khẩu vị của bạn',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+
+          Text('Khẩu vị: $selectedTaste'),
+          Text('Nhiệt độ: $selectedTemperature'),
+          Text('Loại đồ uống: $selectedType'),
+
+          const SizedBox(height: 30),
+
+          const Text(
+            'Món phù hợp',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+
+          if (recommendations.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text('Hiện chưa có món nào phù hợp với lựa chọn của bạn.'),
+            )
+          else
+            ...recommendations.map((recommendation) {
+              final drink = recommendation.drink;
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      drink.imageUrl,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 72,
+                        height: 72,
+                        color: Colors.orange[100],
+                        child: const Icon(Icons.local_cafe),
+                      ),
+                    ),
+                  ),
+                  title: Text(drink.name),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(drink.description),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${drink.rating.toStringAsFixed(1)} • ${drink.difficulty} • ${drink.cookingTimeMinutes} phút',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  isThreeLine: true,
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => DrinkDetailScreen(drink: drink),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: restart,
+              child: const Text('Chọn lại'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
