@@ -60,6 +60,101 @@ class AppLocalizationsVi extends AppLocalizations {
   String get viewRecipe => 'Xem công thức';
 
   @override
+  String get suggestionBannerTitle => 'Chưa biết uống gì?';
+
+  @override
+  String get suggestionBannerSubtitle => 'Câu hỏi gợi ý đồ uống cho bạn';
+
+  @override
+  String get viewRecipeArrow => 'Xem công thức →';
+
+  @override
+  String get drinkSuggestionTitle => 'Gợi ý đồ uống';
+
+  @override
+  String questionProgress(int current, int total) {
+    return 'Câu hỏi $current/$total';
+  }
+
+  @override
+  String get qTasteTitle => 'Bạn thích khẩu vị nào?';
+
+  @override
+  String get optSweet => 'Ngọt';
+
+  @override
+  String get optSour => 'Chua';
+
+  @override
+  String get optBitter => 'Đắng';
+
+  @override
+  String get optRich => 'Béo';
+
+  @override
+  String get optLight => 'Thanh nhẹ';
+
+  @override
+  String get qTempTitle => 'Bạn thích uống nóng hay lạnh?';
+
+  @override
+  String get optHot => 'Nóng';
+
+  @override
+  String get optCold => 'Lạnh';
+
+  @override
+  String get optAnyTemp => 'Không quan trọng';
+
+  @override
+  String get qTypeTitle => 'Bạn muốn uống loại nào?';
+
+  @override
+  String get optTea => 'Trà';
+
+  @override
+  String get optCoffee => 'Cà phê';
+
+  @override
+  String get optFruitJuice => 'Nước trái cây';
+
+  @override
+  String get optAnyType => 'Không quan trọng';
+
+  @override
+  String get btnNext => 'Tiếp tục';
+
+  @override
+  String get btnBack => 'Quay lại';
+
+  @override
+  String get btnGetSuggestion => 'Xem gợi ý';
+
+  @override
+  String get btnRetake => 'Chọn lại';
+
+  @override
+  String get yourPreferencesTitle => 'Khẩu vị của bạn';
+
+  @override
+  String prefTasteLabel(Object val) {
+    return 'Khẩu vị: $val';
+  }
+
+  @override
+  String prefTempLabel(Object val) {
+    return 'Nhiệt độ: $val';
+  }
+
+  @override
+  String prefTypeLabel(Object val) {
+    return 'Loại đồ uống: $val';
+  }
+
+  @override
+  String get matchedDrinksTitle => 'Món phù hợp';
+
+  @override
   String minutes(int count) {
     return '$count phút';
   }
@@ -75,6 +170,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get ingredientsTitle => 'Nguyên Liệu Cần Chuẩn Bị';
+
+  @override
+  String get preparedProgress => 'Đã chuẩn bị';
 
   @override
   String get stepsTitle => 'Các Bước Thực Hiện';

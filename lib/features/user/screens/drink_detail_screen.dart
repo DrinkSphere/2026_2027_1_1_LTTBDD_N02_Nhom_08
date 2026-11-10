@@ -579,8 +579,10 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
-                                          'Đã chuẩn bị',
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.preparedProgress,
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                           ),

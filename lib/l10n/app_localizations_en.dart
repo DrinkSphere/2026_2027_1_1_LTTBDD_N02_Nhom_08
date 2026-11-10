@@ -60,6 +60,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewRecipe => 'View recipe';
 
   @override
+  String get suggestionBannerTitle => 'Not sure what to drink?';
+
+  @override
+  String get suggestionBannerSubtitle => 'Drink recommendation quiz for you';
+
+  @override
+  String get viewRecipeArrow => 'View recipe →';
+
+  @override
+  String get drinkSuggestionTitle => 'Drink Recommendations';
+
+  @override
+  String questionProgress(int current, int total) {
+    return 'Question $current/$total';
+  }
+
+  @override
+  String get qTasteTitle => 'Which flavor do you prefer?';
+
+  @override
+  String get optSweet => 'Sweet';
+
+  @override
+  String get optSour => 'Sour';
+
+  @override
+  String get optBitter => 'Bitter';
+
+  @override
+  String get optRich => 'Rich & Creamy';
+
+  @override
+  String get optLight => 'Light & Refreshing';
+
+  @override
+  String get qTempTitle => 'Do you prefer hot or cold drinks?';
+
+  @override
+  String get optHot => 'Hot';
+
+  @override
+  String get optCold => 'Cold';
+
+  @override
+  String get optAnyTemp => 'Doesn\'t matter';
+
+  @override
+  String get qTypeTitle => 'What type of drink would you like?';
+
+  @override
+  String get optTea => 'Tea';
+
+  @override
+  String get optCoffee => 'Coffee';
+
+  @override
+  String get optFruitJuice => 'Fruit Juice';
+
+  @override
+  String get optAnyType => 'Doesn\'t matter';
+
+  @override
+  String get btnNext => 'Next';
+
+  @override
+  String get btnBack => 'Back';
+
+  @override
+  String get btnGetSuggestion => 'Get Suggestion';
+
+  @override
+  String get btnRetake => 'Retake Quiz';
+
+  @override
+  String get yourPreferencesTitle => 'Your Preferences';
+
+  @override
+  String prefTasteLabel(Object val) {
+    return 'Flavor: $val';
+  }
+
+  @override
+  String prefTempLabel(Object val) {
+    return 'Temperature: $val';
+  }
+
+  @override
+  String prefTypeLabel(Object val) {
+    return 'Drink type: $val';
+  }
+
+  @override
+  String get matchedDrinksTitle => 'Matching Drinks';
+
+  @override
   String minutes(int count) {
     return '$count minutes';
   }
@@ -75,6 +170,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ingredientsTitle => 'Ingredients';
+
+  @override
+  String get preparedProgress => 'Prepared';
 
   @override
   String get stepsTitle => 'Steps';

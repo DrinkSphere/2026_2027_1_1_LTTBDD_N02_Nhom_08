@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/drink_provider.dart';
 import 'drink_detail_screen.dart';
 import '../services/drink_recommendation_service.dart';
@@ -73,6 +74,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
     List<String> options,
     String? selectedValue,
     ValueChanged<String> onSelected,
+    AppLocalizations l10n,
   ) {
     return Column(
       children: options.map((option) {
@@ -80,7 +82,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
           child: ListTile(
-            title: Text(option),
+            title: Text(_optionLabel(option, l10n)),
             leading: Icon(
               isSelected
                   ? Icons.radio_button_checked
@@ -97,14 +99,11 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titles = [
-      'Bạn thích khẩu vị nào?',
-      'Bạn thích uống nóng hay lạnh?',
-      'Bạn muốn uống loại nào?',
-    ];
+    final l10n = AppLocalizations.of(context)!;
+    final titles = [l10n.qTasteTitle, l10n.qTempTitle, l10n.qTypeTitle];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Gợi ý đồ uống')),
+      appBar: AppBar(title: Text(l10n.drinkSuggestionTitle)),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: currentStep == 3
@@ -116,7 +115,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                   const SizedBox(height: 24),
 
                   Text(
-                    'Câu hỏi ${currentStep + 1}/3',
+                    l10n.questionProgress(currentStep + 1, 3),
                     style: const TextStyle(color: Colors.grey),
                   ),
 
@@ -139,6 +138,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                               tastes,
                               selectedTaste,
                               (value) => setState(() => selectedTaste = value),
+                              l10n,
                             )
                           : currentStep == 1
                           ? buildOptions(
@@ -146,11 +146,13 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                               selectedTemperature,
                               (value) =>
                                   setState(() => selectedTemperature = value),
+                              l10n,
                             )
                           : buildOptions(
                               drinkTypes,
                               selectedType,
                               (value) => setState(() => selectedType = value),
+                              l10n,
                             ),
                     ),
                   ),
@@ -160,7 +162,7 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                       if (currentStep > 0)
                         OutlinedButton(
                           onPressed: previousStep,
-                          child: const Text('Quay lại'),
+                          child: Text(l10n.btnBack),
                         ),
 
                       const SizedBox(width: 12),
@@ -169,7 +171,9 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                         child: ElevatedButton(
                           onPressed: nextStep,
                           child: Text(
-                            currentStep == 2 ? 'Xem gợi ý' : 'Tiếp tục',
+                            currentStep == 2
+                                ? l10n.btnGetSuggestion
+                                : l10n.btnNext,
                           ),
                         ),
                       ),
@@ -182,34 +186,35 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
   }
 
   Widget buildResult() {
+    final l10n = AppLocalizations.of(context)!;
     final recommendations = getRecommendedDrinks();
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Khẩu vị của bạn',
+          Text(
+            l10n.yourPreferencesTitle,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
 
-          Text('Khẩu vị: $selectedTaste'),
-          Text('Nhiệt độ: $selectedTemperature'),
-          Text('Loại đồ uống: $selectedType'),
+          Text(l10n.prefTasteLabel(_optionLabel(selectedTaste!, l10n))),
+          Text(l10n.prefTempLabel(_optionLabel(selectedTemperature!, l10n))),
+          Text(l10n.prefTypeLabel(_optionLabel(selectedType!, l10n))),
 
           const SizedBox(height: 30),
 
-          const Text(
-            'Món phù hợp',
+          Text(
+            l10n.matchedDrinksTitle,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
 
           if (recommendations.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text('Hiện chưa có món nào phù hợp với lựa chọn của bạn.'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(l10n.noMatchingRecipes),
             )
           else
             ...recommendations.map((recommendation) {
@@ -233,18 +238,18 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
                       ),
                     ),
                   ),
-                  title: Text(drink.name),
+                  title: Text(drink.getName(context)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(drink.description),
+                      Text(drink.getDescription(context)),
                       const SizedBox(height: 4),
                       Row(
                         children: [
                           const Icon(Icons.star, color: Colors.amber, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '${drink.rating.toStringAsFixed(1)} • ${drink.difficulty} • ${drink.cookingTimeMinutes} phút',
+                            '${drink.rating.toStringAsFixed(1)} • ${drink.getDifficulty(context)} • ${l10n.minutes(drink.cookingTimeMinutes)}',
                           ),
                         ],
                       ),
@@ -269,11 +274,40 @@ class _TasteRecommendationScreenState extends State<TasteRecommendationScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: restart,
-              child: const Text('Chọn lại'),
+              child: Text(l10n.btnRetake),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _optionLabel(String option, AppLocalizations l10n) {
+    switch (option) {
+      case 'Ngọt':
+        return l10n.optSweet;
+      case 'Chua':
+        return l10n.optSour;
+      case 'Đắng':
+        return l10n.optBitter;
+      case 'Béo':
+        return l10n.optRich;
+      case 'Thanh nhẹ':
+        return l10n.optLight;
+      case 'Nóng':
+        return l10n.optHot;
+      case 'Lạnh':
+        return l10n.optCold;
+      case 'Trà':
+        return l10n.optTea;
+      case 'Cà phê':
+        return l10n.optCoffee;
+      case 'Nước trái cây':
+        return l10n.optFruitJuice;
+      case 'Không quan trọng':
+        return l10n.optAnyTemp;
+      default:
+        return option;
+    }
   }
 }

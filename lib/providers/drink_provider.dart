@@ -119,7 +119,9 @@ class DrinkProvider extends ChangeNotifier {
           d.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           (d.nameEn?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
               false) ||
-          (d.descriptionEn?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+          (d.descriptionEn?.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ??
               false);
       return matchesCategory && matchesSearch;
     }).toList();
@@ -192,7 +194,7 @@ class DrinkProvider extends ChangeNotifier {
 
   String getCategoryName(BuildContext context, String id) {
     try {
-      return _categories.firstWhere((c) => c.id == id).name;
+      return _categories.firstWhere((c) => c.id == id).getName(context);
     } catch (_) {
       return AppLocalizations.of(context)!.uncategorized;
     }

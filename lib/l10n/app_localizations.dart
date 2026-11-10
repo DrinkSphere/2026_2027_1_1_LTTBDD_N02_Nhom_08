@@ -200,6 +200,180 @@ abstract class AppLocalizations {
   /// **'Xem công thức'**
   String get viewRecipe;
 
+  /// No description provided for @suggestionBannerTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa biết uống gì?'**
+  String get suggestionBannerTitle;
+
+  /// No description provided for @suggestionBannerSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Câu hỏi gợi ý đồ uống cho bạn'**
+  String get suggestionBannerSubtitle;
+
+  /// No description provided for @viewRecipeArrow.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xem công thức →'**
+  String get viewRecipeArrow;
+
+  /// No description provided for @drinkSuggestionTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gợi ý đồ uống'**
+  String get drinkSuggestionTitle;
+
+  /// No description provided for @questionProgress.
+  ///
+  /// In vi, this message translates to:
+  /// **'Câu hỏi {current}/{total}'**
+  String questionProgress(int current, int total);
+
+  /// No description provided for @qTasteTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn thích khẩu vị nào?'**
+  String get qTasteTitle;
+
+  /// No description provided for @optSweet.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ngọt'**
+  String get optSweet;
+
+  /// No description provided for @optSour.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chua'**
+  String get optSour;
+
+  /// No description provided for @optBitter.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đắng'**
+  String get optBitter;
+
+  /// No description provided for @optRich.
+  ///
+  /// In vi, this message translates to:
+  /// **'Béo'**
+  String get optRich;
+
+  /// No description provided for @optLight.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thanh nhẹ'**
+  String get optLight;
+
+  /// No description provided for @qTempTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn thích uống nóng hay lạnh?'**
+  String get qTempTitle;
+
+  /// No description provided for @optHot.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nóng'**
+  String get optHot;
+
+  /// No description provided for @optCold.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lạnh'**
+  String get optCold;
+
+  /// No description provided for @optAnyTemp.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không quan trọng'**
+  String get optAnyTemp;
+
+  /// No description provided for @qTypeTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn muốn uống loại nào?'**
+  String get qTypeTitle;
+
+  /// No description provided for @optTea.
+  ///
+  /// In vi, this message translates to:
+  /// **'Trà'**
+  String get optTea;
+
+  /// No description provided for @optCoffee.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cà phê'**
+  String get optCoffee;
+
+  /// No description provided for @optFruitJuice.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nước trái cây'**
+  String get optFruitJuice;
+
+  /// No description provided for @optAnyType.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không quan trọng'**
+  String get optAnyType;
+
+  /// No description provided for @btnNext.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếp tục'**
+  String get btnNext;
+
+  /// No description provided for @btnBack.
+  ///
+  /// In vi, this message translates to:
+  /// **'Quay lại'**
+  String get btnBack;
+
+  /// No description provided for @btnGetSuggestion.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xem gợi ý'**
+  String get btnGetSuggestion;
+
+  /// No description provided for @btnRetake.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chọn lại'**
+  String get btnRetake;
+
+  /// No description provided for @yourPreferencesTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khẩu vị của bạn'**
+  String get yourPreferencesTitle;
+
+  /// No description provided for @prefTasteLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khẩu vị: {val}'**
+  String prefTasteLabel(Object val);
+
+  /// No description provided for @prefTempLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhiệt độ: {val}'**
+  String prefTempLabel(Object val);
+
+  /// No description provided for @prefTypeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Loại đồ uống: {val}'**
+  String prefTypeLabel(Object val);
+
+  /// No description provided for @matchedDrinksTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Món phù hợp'**
+  String get matchedDrinksTitle;
+
   /// No description provided for @minutes.
   ///
   /// In vi, this message translates to:
@@ -229,6 +403,12 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Nguyên Liệu Cần Chuẩn Bị'**
   String get ingredientsTitle;
+
+  /// No description provided for @preparedProgress.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã chuẩn bị'**
+  String get preparedProgress;
 
   /// No description provided for @stepsTitle.
   ///

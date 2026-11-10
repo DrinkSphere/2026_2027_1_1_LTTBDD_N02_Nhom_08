@@ -57,11 +57,11 @@ class HomeScreen extends StatelessWidget {
                       Icons.auto_awesome,
                       color: Colors.orange,
                     ),
-                    title: const Text(
-                      'Chưa biết uống gì?',
+                    title: Text(
+                      l10n.suggestionBannerTitle,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: const Text('Câu hỏi gợi ý đồ uống cho bạn'),
+                    subtitle: Text(l10n.suggestionBannerSubtitle),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Navigator.push(
@@ -282,7 +282,7 @@ class HomeScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          drink.name,
+                                          drink.getName(context),
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -290,7 +290,7 @@ class HomeScreen extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          drink.description,
+                                          drink.getDescription(context),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -308,7 +308,9 @@ class HomeScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              '${drink.cookingTimeMinutes} phút',
+                                              l10n.minutes(
+                                                drink.cookingTimeMinutes,
+                                              ),
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: AppColors.textSecondary,
@@ -322,15 +324,15 @@ class HomeScreen extends StatelessWidget {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              drink.difficulty,
+                                              drink.getDifficulty(context),
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 color: AppColors.textSecondary,
                                               ),
                                             ),
                                             const Spacer(),
-                                            const Text(
-                                              'Xem công thức →',
+                                            Text(
+                                              l10n.viewRecipeArrow,
                                               style: TextStyle(
                                                 color: AppColors.primary,
                                                 fontWeight: FontWeight.bold,
