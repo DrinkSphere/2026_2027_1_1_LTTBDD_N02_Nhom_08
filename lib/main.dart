@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
+import 'core/localization/locale_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'data/services/storage_service.dart';
 import 'features/admin/screens/admin_dashboard_screen.dart';
@@ -8,6 +9,7 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/user/screens/user_main_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/drink_provider.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,11 +31,19 @@ class DrinkRecipeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const AuthWrapper(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: localeController,
+      builder: (context, locale, child) {
+        return MaterialApp(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: const AuthWrapper(),
+        );
+      },
     );
   }
 }
