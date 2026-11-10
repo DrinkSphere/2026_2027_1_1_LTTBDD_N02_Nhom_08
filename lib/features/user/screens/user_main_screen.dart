@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../profile/screens/profile_screen.dart';
 import 'home_screen.dart';
 import 'saved_drinks_screen.dart';
@@ -22,11 +23,9 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: AppColors.primary,
@@ -38,21 +37,21 @@ class _UserMainScreenState extends State<UserMainScreen> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.menu_book_rounded),
             activeIcon: Icon(Icons.menu_book_rounded),
-            label: 'Công Thức',
+            label: l10n.recipesTab,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_rounded),
             activeIcon: Icon(Icons.bookmark_rounded),
-            label: 'Đã Lưu',
+            label: l10n.savedDrinksTitle,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline_rounded),
             activeIcon: Icon(Icons.person_rounded),
-            label: 'Tài Khoản',
+            label: l10n.accountTab,
           ),
         ],
       ),

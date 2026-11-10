@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
 import '../../../data/models/comment_model.dart';
 import '../../../data/models/drink_model.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/drink_provider.dart';
 
@@ -234,6 +236,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
   void _sendComment() async {
     if (_commentCtrl.text.trim().isEmpty) return;
 
+    final l10n = AppLocalizations.of(context)!;
     final user = context.read<AuthProvider>().currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -248,11 +251,11 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
       drinkId: widget.drink.id,
       drinkName: widget.drink.name,
       userId: user.id,
-      userName: user.name,
+      userName: user.name.isNotEmpty ? user.name : l10n.guest,
       userAvatar: user.avatarUrl,
       content: _commentCtrl.text.trim(),
       rating: _userRating,
-      isApproved: false, // Chờ duyệt
+      isApproved: false,
       createdAt: DateTime.now(),
     );
 
@@ -261,8 +264,8 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bình luận của bạn đã được gửi và đang chờ Admin duyệt!'),
+      SnackBar(
+        content: Text(l10n.commentSent),
         backgroundColor: AppColors.info,
       ),
     );
@@ -388,9 +391,23 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
     );
   }
 
+  String _difficultyName(AppLocalizations l10n, String value) {
+    switch (value) {
+      case 'Dễ':
+        return l10n.easy;
+      case 'Trung bình':
+        return l10n.medium;
+      case 'Khó':
+        return l10n.hard;
+      default:
+        return value;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final drink = widget.drink;
+    final l10n = AppLocalizations.of(context)!;
     final drinkProvider = context.watch<DrinkProvider>();
     final currentUser = context.watch<AuthProvider>().currentUser;
     final comments = drinkProvider.comments
@@ -400,7 +417,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
               (comment.isApproved || comment.userId == currentUser?.id),
         )
         .toList();
-    final catName = drinkProvider.getCategoryName(drink.categoryId);
+    final catName = drinkProvider.getCategoryName(context, drink.categoryId);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -409,9 +426,10 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
+            actions: const [LanguageToggleButton()],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                drink.name,
+                drink.getName(context),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -489,7 +507,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${drink.cookingTimeMinutes} phút',
+                            l10n.minutes(drink.cookingTimeMinutes),
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary,
@@ -503,7 +521,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            drink.difficulty,
+                            _difficultyName(l10n, drink.difficulty),
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary,
@@ -515,7 +533,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
 
                       // Description
                       Text(
-                        drink.description,
+                        drink.getDescription(context),
                         style: const TextStyle(
                           fontSize: 15,
                           color: AppColors.textSecondary,
@@ -524,10 +542,10 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Ingredients Section (3.2)
-                      const Text(
-                        'Danh Sách Nguyên Liệu',
-                        style: TextStyle(
+                      // Ingredients Section
+                      Text(
+                        l10n.ingredientsTitle,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
@@ -535,7 +553,6 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                       ),
                       const SizedBox(height: 10),
                       Container(
-                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -554,36 +571,44 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                 ),
                               )
                             else ...[
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Đã chuẩn bị',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Đã chuẩn bị',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${_preparedIngredientIndexes.length}/${drink.ingredients.length}',
+                                          style: const TextStyle(
+                                            color: AppColors.textSecondary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  Text(
-                                    '${_preparedIngredientIndexes.length}/${drink.ingredients.length}',
-                                    style: const TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontWeight: FontWeight.w600,
+                                    const SizedBox(height: 8),
+                                    LinearProgressIndicator(
+                                      value: drink.ingredients.isEmpty
+                                          ? 0
+                                          : _preparedIngredientIndexes.length /
+                                                drink.ingredients.length,
+                                      minHeight: 6,
+                                      borderRadius: BorderRadius.circular(8),
+                                      backgroundColor: AppColors.primaryLight,
+                                      color: AppColors.primary,
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              LinearProgressIndicator(
-                                value:
-                                    _preparedIngredientIndexes.length /
-                                    drink.ingredients.length,
-                                minHeight: 6,
-                                borderRadius: BorderRadius.circular(8),
-                                backgroundColor: AppColors.primaryLight,
-                                color: AppColors.primary,
-                              ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 4),
                               ...drink.ingredients.asMap().entries.map((entry) {
                                 final index = entry.key;
                                 final item = entry.value;
@@ -591,7 +616,11 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                     .contains(index);
 
                                 return Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
+                                  margin: const EdgeInsets.only(
+                                    bottom: 8,
+                                    left: 12,
+                                    right: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: isPrepared
                                         ? AppColors.primaryLight.withValues(
@@ -619,7 +648,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                           const SizedBox(width: 4),
                                           Expanded(
                                             child: Text(
-                                              item.ingredientName,
+                                              item.getName(context),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 color: isPrepared
@@ -643,7 +672,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                                   BorderRadius.circular(999),
                                             ),
                                             child: Text(
-                                              '${item.amount} ${item.unit}',
+                                              '${item.amount} ${item.getUnit(context)}',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 color: AppColors.primaryDark,
@@ -656,89 +685,73 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                   ),
                                 );
                               }),
+                              const SizedBox(height: 8),
                             ],
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
 
-                      // 3.3: Four-stage preparation and serving guide.
-                      const Text(
-                        'Hướng Dẫn Pha Chế',
-                        style: TextStyle(
+                      // Steps Section
+                      Text(
+                        l10n.stepsTitle,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      _buildGuideStage(
-                        number: 1,
-                        icon: Icons.eco_outlined,
-                        title: 'Sơ chế nguyên liệu',
-                        description: _preparationStepIndexes.isEmpty
-                            ? 'Đánh dấu nguyên liệu đã chuẩn bị trong danh sách phía trên.'
-                            : 'Làm theo các bước sơ chế trong công thức.',
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_preparationStepIndexes.isNotEmpty)
-                              _buildGuideStepList(_preparationStepIndexes),
-                            if (drink.ingredients.isNotEmpty)
-                              Text(
-                                'Đã chuẩn bị ${_preparedIngredientIndexes.length} / ${drink.ingredients.length} nguyên liệu',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary,
+                      ...drink.getSteps(context).asMap().entries.map((e) {
+                        final index = e.key;
+                        final step = e.value;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 13,
+                                backgroundColor: AppColors.primary,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                          ],
-                        ),
-                      ),
-                      _buildGuideStage(
-                        number: 2,
-                        icon: Icons.kitchen_outlined,
-                        title: 'Chuẩn bị dụng cụ',
-                        description: 'Dụng cụ cần dùng:',
-                        content: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: _requiredTools
-                              .map((tool) => Chip(label: Text(tool)))
-                              .toList(),
-                        ),
-                      ),
-                      _buildGuideStage(
-                        number: 3,
-                        icon: Icons.local_cafe_outlined,
-                        title: 'Thực hiện pha chế',
-                        description: _brewingStepIndexes.isEmpty
-                            ? 'Công thức này chưa có hướng dẫn pha chế chi tiết.'
-                            : 'Thực hiện lần lượt các bước sau:',
-                        content: _brewingStepIndexes.isEmpty
-                            ? null
-                            : _buildGuideStepList(_brewingStepIndexes),
-                      ),
-                      _buildGuideStage(
-                        number: 4,
-                        icon: Icons.auto_awesome_outlined,
-                        title: 'Trang trí và hoàn thiện',
-                        description: _finishingStepIndexes.isEmpty
-                            ? 'Không có yêu cầu trang trí riêng; rót ra ly phục vụ.'
-                            : 'Làm theo bước hoàn thiện trong công thức.',
-                        content: _finishingStepIndexes.isEmpty
-                            ? null
-                            : _buildGuideStepList(_finishingStepIndexes),
-                      ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  step,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    height: 1.4,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 24),
 
                       // Comments Section
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Đánh Giá & Bình Luận',
-                            style: TextStyle(
+                          Text(
+                            l10n.commentsTitle,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary,
@@ -767,9 +780,11 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                           children: [
                             Row(
                               children: [
-                                const Text(
-                                  'Đánh giá:',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                Text(
+                                  l10n.ratingLabel,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 ...List.generate(5, (starIdx) {
@@ -792,8 +807,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                             TextField(
                               controller: _commentCtrl,
                               decoration: InputDecoration(
-                                labelText: 'Bình luận',
-                                hintText: 'Viết cảm nhận của bạn...',
+                                hintText: l10n.commentHint,
                                 suffixIcon: IconButton(
                                   icon: const Icon(
                                     Icons.send_rounded,
@@ -803,7 +817,6 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                 ),
                               ),
                               maxLines: 2,
-                              maxLength: 500,
                             ),
                           ],
                         ),
@@ -812,19 +825,21 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
 
                       // Comments list
                       if (comments.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Center(
                             child: Text(
-                              'Chưa có bình luận nào được hiển thị.',
-                              style: TextStyle(color: AppColors.textSecondary),
+                              l10n.noComments,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ),
                         )
                       else
-                        ...comments.map((comment) {
-                          final isOwnComment =
-                              currentUser?.id == comment.userId;
+                        ...comments.map((c) {
+                          final isOwnComment = currentUser?.id == c.userId;
+
                           return Card(
                             margin: const EdgeInsets.only(bottom: 10),
                             child: Padding(
@@ -836,7 +851,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          comment.userName,
+                                          c.userName,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -846,7 +861,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                         children: List.generate(
                                           5,
                                           (idx) => Icon(
-                                            idx < comment.rating
+                                            idx < c.rating
                                                 ? Icons.star
                                                 : Icons.star_border,
                                             size: 14,
@@ -854,13 +869,14 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                           ),
                                         ),
                                       ),
-                                      if (!comment.isApproved)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 8,
-                                          ),
+                                      if (!c.isApproved)
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 8),
                                           child: Chip(
-                                            label: const Text('Chờ duyệt'),
+                                            label: Text(
+                                              'Chờ duyệt',
+                                              style: TextStyle(fontSize: 11),
+                                            ),
                                             visualDensity:
                                                 VisualDensity.compact,
                                             padding: EdgeInsets.zero,
@@ -870,7 +886,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    comment.content,
+                                    c.content,
                                     style: const TextStyle(fontSize: 13),
                                   ),
                                   if (isOwnComment)
@@ -880,8 +896,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                         spacing: 4,
                                         children: [
                                           TextButton.icon(
-                                            onPressed: () =>
-                                                _editComment(comment),
+                                            onPressed: () => _editComment(c),
                                             icon: const Icon(
                                               Icons.edit_outlined,
                                               size: 18,
@@ -889,8 +904,7 @@ class _DrinkDetailScreenState extends State<DrinkDetailScreen> {
                                             label: const Text('Sửa'),
                                           ),
                                           TextButton.icon(
-                                            onPressed: () =>
-                                                _deleteComment(comment),
+                                            onPressed: () => _deleteComment(c),
                                             icon: const Icon(
                                               Icons.delete_outline,
                                               size: 18,

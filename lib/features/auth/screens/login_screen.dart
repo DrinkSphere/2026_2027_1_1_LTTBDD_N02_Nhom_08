@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../admin/screens/admin_dashboard_screen.dart';
 import '../../user/screens/user_main_screen.dart';
@@ -49,6 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     if (success) {
       final user = authProvider.currentUser;
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const Icon(Icons.check_circle, color: Colors.white),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Xin chào ${user?.name}! Đăng nhập thành công.'),
+                child: Text(l10n.welcomeLoginSuccess(user?.name ?? '')),
               ),
             ],
           ),
@@ -78,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         (route) => false,
       );
     } else {
-      final errorMsg = authProvider.errorMessage ?? 'Đăng nhập thất bại.';
+      final errorMsg = authProvider.localizedErrorMessage(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -98,6 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -148,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Đăng nhập để quản lý công thức và pha chế',
+                  Text(
+                    l10n.loginSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -169,8 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '⚡ Điền nhanh tài khoản thử nghiệm:',
+                        Text(
+                          l10n.quickTestAccounts,
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 8),
@@ -216,24 +219,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Email
                   AuthTextField(
                     controller: _emailController,
-                    label: 'Email',
+                    label: l10n.emailLabel,
                     hintText: 'name@example.com',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: Validators.validateEmail,
+                    validator: (value) => Validators.validateEmail(
+                      value,
+                      context: context,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
                   // Mật khẩu
                   AuthTextField(
                     controller: _passwordController,
-                    label: 'Mật khẩu',
-                    hintText: 'Nhập mật khẩu',
+                    label: l10n.passwordLabel,
+                    hintText: l10n.passwordHint,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _handleLogin(),
-                    validator: Validators.validatePassword,
+                    validator: (value) => Validators.validatePassword(
+                      value,
+                      context: context,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -258,8 +267,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
                         );
                       },
-                      child: const Text(
-                        'Quên mật khẩu?',
+                      child: Text(
+                        l10n.forgotPasswordQuestion,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -284,8 +293,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            'Đăng Nhập',
+                        : Text(
+                            l10n.loginTitle,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                   ),
@@ -295,8 +304,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Chưa có tài khoản? ',
+                      Text(
+                        l10n.dontHaveAccount,
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                       GestureDetector(
@@ -305,8 +314,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             MaterialPageRoute(builder: (_) => const RegisterScreen()),
                           );
                         },
-                        child: const Text(
-                          'Đăng ký ngay',
+                        child: Text(
+                          l10n.registerNow,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
@@ -324,4 +333,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

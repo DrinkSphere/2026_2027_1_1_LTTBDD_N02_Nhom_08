@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/widgets/language_toggle_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../auth/widgets/auth_text_field.dart';
 
@@ -52,21 +54,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final success = await authProvider.updateProfile(
       name: _nameController.text,
       phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
-      avatarUrl: _avatarController.text.isNotEmpty ? _avatarController.text : null,
-      currentPassword: _isChangingPassword ? _currentPasswordController.text : null,
+      avatarUrl: _avatarController.text.isNotEmpty
+          ? _avatarController.text
+          : null,
+      currentPassword: _isChangingPassword
+          ? _currentPasswordController.text
+          : null,
       newPassword: _isChangingPassword ? _newPasswordController.text : null,
     );
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
               Icon(Icons.check_circle, color: Colors.white),
               SizedBox(width: 8),
-              Expanded(child: Text('Cập nhật thông tin thành công!')),
+              Expanded(child: Text(l10n.saveChanges)),
             ],
           ),
           backgroundColor: AppColors.success,
@@ -75,7 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
       Navigator.of(context).pop();
     } else {
-      final errorMsg = authProvider.errorMessage ?? 'Cập nhật thất bại.';
+      final errorMsg = authProvider.localizedErrorMessage(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -96,11 +103,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final user = authProvider.currentUser;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Chỉnh Sửa Thông Tin'),
+        title: Text(l10n.editProfileTitle),
+        actions: const [LanguageToggleButton()],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.of(context).pop(),
@@ -123,12 +132,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         backgroundColor: AppColors.primaryLight,
                         backgroundImage: _avatarController.text.isNotEmpty
                             ? NetworkImage(_avatarController.text)
-                            : (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
-                                ? NetworkImage(user.avatarUrl!)
-                                : null,
-                        child: (_avatarController.text.isEmpty &&
-                                (user?.avatarUrl == null || user!.avatarUrl!.isEmpty))
-                            ? const Icon(Icons.person, size: 50, color: AppColors.primary)
+                            : (user?.avatarUrl != null &&
+                                  user!.avatarUrl!.isNotEmpty)
+                            ? NetworkImage(user.avatarUrl!)
+                            : null,
+                        child:
+                            (_avatarController.text.isEmpty &&
+                                (user?.avatarUrl == null ||
+                                    user!.avatarUrl!.isEmpty))
+                            ? const Icon(
+                                Icons.person,
+                                size: 50,
+                                color: AppColors.primary,
+                              )
                             : null,
                       ),
                       Positioned(
@@ -140,7 +156,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ],
@@ -151,10 +171,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 // Họ và tên
                 AuthTextField(
                   controller: _nameController,
-                  label: 'Họ và tên',
-                  hintText: 'Nhập họ và tên',
+                  label: l10n.fullName,
+                  hintText: l10n.nameInputHint,
                   prefixIcon: Icons.badge_outlined,
-                  validator: (val) => Validators.validateRequired(val, 'họ và tên'),
+                  validator: (val) => Validators.validateRequired(
+                    val,
+                    l10n.fullName,
+                    context: context,
+                    requiredMessage: l10n.valRequired,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -162,8 +187,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Địa chỉ Email (Cố định)',
+                    Text(
+                      l10n.emailAddressFixed,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -177,10 +202,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey.shade100,
-                        prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textLight),
-                        suffixIcon: const Tooltip(
-                          message: 'Email dùng làm định danh, không thể thay đổi',
-                          child: Icon(Icons.lock_outline, color: AppColors.textLight, size: 18),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.textLight,
+                        ),
+                        suffixIcon: Tooltip(
+                          message: l10n.emailReadonlyTooltip,
+                          child: Icon(
+                            Icons.lock_outline,
+                            color: AppColors.textLight,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -191,19 +223,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 // Số điện thoại
                 AuthTextField(
                   controller: _phoneController,
-                  label: 'Số điện thoại',
-                  hintText: '0901234567',
+                  label: l10n.phoneNumber,
+                  hintText: l10n.phoneHint,
                   prefixIcon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
-                  validator: Validators.validatePhone,
+                  validator: (val) =>
+                      Validators.validatePhone(val, context: context),
                 ),
                 const SizedBox(height: 16),
 
                 // Avatar URL
                 AuthTextField(
                   controller: _avatarController,
-                  label: 'Đường dẫn ảnh đại diện (URL)',
-                  hintText: 'https://images.unsplash.com/...',
+                  label: l10n.avatarUrl,
+                  hintText: l10n.imageUrlHint,
                   prefixIcon: Icons.image_outlined,
                   keyboardType: TextInputType.url,
                 ),
@@ -222,12 +255,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.password_outlined, color: AppColors.primary, size: 20),
+                              Icon(
+                                Icons.password_outlined,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
                               SizedBox(width: 8),
                               Text(
-                                'Đổi mật khẩu tài khoản',
+                                l10n.changePassword,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
@@ -250,12 +287,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const Divider(height: 20),
                         AuthTextField(
                           controller: _currentPasswordController,
-                          label: 'Mật khẩu hiện tại',
-                          hintText: 'Nhập mật khẩu đang dùng',
+                          label: l10n.currentPasswordLabel,
+                          hintText: l10n.currentPasswordHint,
                           prefixIcon: Icons.lock_outline,
                           obscureText: _obscureCurrentPassword,
                           validator: _isChangingPassword
-                              ? (val) => Validators.validateRequired(val, 'mật khẩu hiện tại')
+                              ? (val) => Validators.validateRequired(
+                                  val,
+                                  l10n.currentPasswordLabel,
+                                  context: context,
+                                )
                               : null,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -266,7 +307,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureCurrentPassword = !_obscureCurrentPassword;
+                                _obscureCurrentPassword =
+                                    !_obscureCurrentPassword;
                               });
                             },
                           ),
@@ -274,11 +316,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const SizedBox(height: 12),
                         AuthTextField(
                           controller: _newPasswordController,
-                          label: 'Mật khẩu mới',
-                          hintText: 'Tối thiểu 6 ký tự',
+                          label: l10n.newPasswordLabel,
+                          hintText: l10n.newPasswordHint,
                           prefixIcon: Icons.lock_reset_outlined,
                           obscureText: _obscureNewPassword,
-                          validator: _isChangingPassword ? Validators.validatePassword : null,
+                          validator: _isChangingPassword
+                              ? (val) => Validators.validatePassword(
+                                  val,
+                                  context: context,
+                                )
+                              : null,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscureNewPassword
@@ -314,9 +361,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
-                          'Lưu Thay Đổi',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      : Text(
+                          l10n.saveChanges,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                 ),
               ],
@@ -327,4 +377,3 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
-

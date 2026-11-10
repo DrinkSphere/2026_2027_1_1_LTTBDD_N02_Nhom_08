@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/drink_provider.dart';
 import '../../admin/screens/admin_dashboard_screen.dart';
@@ -12,25 +14,24 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   void _confirmLogout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.logout_rounded, color: AppColors.error),
             SizedBox(width: 8),
-            Text('Đăng Xuất'),
+            Text(l10n.logout),
           ],
         ),
-        content: const Text(
-          'Bạn có chắc chắn muốn đăng xuất và kết thúc phiên làm việc này?',
-        ),
+        content: Text(l10n.logout),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              'Hủy',
+            child: Text(
+              l10n.cancel,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -48,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Đăng Xuất'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
@@ -60,6 +61,7 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = context.watch<AuthProvider>();
     final drinkProvider = context.watch<DrinkProvider>();
     final user = authProvider.currentUser;
+    final l10n = AppLocalizations.of(context)!;
 
     final myCommentsCount = drinkProvider.comments
         .where((c) => c.userId == user?.id)
@@ -68,11 +70,12 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Hồ Sơ Cá Nhân'),
+        title: Text(l10n.profileTitle),
         actions: [
+          const LanguageToggleButton(),
           IconButton(
             icon: const Icon(Icons.info_outline),
-            tooltip: 'Giới thiệu',
+            tooltip: l10n.aboutTitle,
             onPressed: () {
               Navigator.of(
                 context,
@@ -81,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Chỉnh sửa thông tin',
+            tooltip: l10n.editProfile,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const EditProfileScreen()),
@@ -133,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        user?.name ?? 'Người dùng',
+                        user?.name ?? l10n.systemAdministrator,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -176,8 +179,8 @@ class ProfileScreen extends StatelessWidget {
                             const SizedBox(width: 6),
                             Text(
                               user?.isAdmin == true
-                                  ? 'QUẢN TRỊ VIÊN (ADMIN)'
-                                  : 'THÀNH VIÊN (USER)',
+                                  ? l10n.adminRole
+                                  : l10n.userRole,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -220,12 +223,12 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Bình luận & Góp ý đã gửi',
+                              l10n.submittedComments,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -234,7 +237,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 2),
                             Text(
-                              'Đóng góp cảm nhận cho các công thức đồ uống',
+                              l10n.submittedCommentsDescription,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
@@ -270,8 +273,8 @@ class ProfileScreen extends StatelessWidget {
                           Icons.person_outline,
                           color: AppColors.primary,
                         ),
-                        title: const Text(
-                          'Chỉnh sửa thông tin cá nhân',
+                        title: Text(
+                          l10n.editProfile,
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         trailing: const Icon(
@@ -296,8 +299,8 @@ class ProfileScreen extends StatelessWidget {
                             Icons.dashboard_outlined,
                             color: AppColors.primary,
                           ),
-                          title: const Text(
-                            'Bảng điều khiển Quản trị (Admin)',
+                          title: Text(
+                            l10n.adminDashboard,
                             style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                           trailing: const Icon(
@@ -321,8 +324,8 @@ class ProfileScreen extends StatelessWidget {
                           Icons.phone_android_outlined,
                           color: AppColors.textSecondary,
                         ),
-                        title: const Text(
-                          'Số điện thoại',
+                        title: Text(
+                          l10n.phone,
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         trailing: Text(
@@ -339,8 +342,8 @@ class ProfileScreen extends StatelessWidget {
                           Icons.calendar_today_outlined,
                           color: AppColors.textSecondary,
                         ),
-                        title: const Text(
-                          'Ngày tham gia',
+                        title: Text(
+                          l10n.joinedDate,
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         trailing: Text(
@@ -371,13 +374,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () => _confirmLogout(context),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.logout_rounded, size: 20),
                         SizedBox(width: 8),
                         Text(
-                          'Đăng Xuất Khỏi Thiết Bị',
+                          l10n.logout,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,

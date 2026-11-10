@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/drink_provider.dart';
 import 'drink_detail_screen.dart';
 import 'home_screen.dart';
@@ -15,7 +17,10 @@ class SavedDrinksScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Đồ Uống Đã Lưu')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.savedDrinksTitle),
+        actions: const [LanguageToggleButton()],
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -32,6 +37,7 @@ class SavedDrinksScreen extends StatelessWidget {
                     return DrinkCard(
                       drink: drink,
                       categoryName: drinkProvider.getCategoryName(
+                        context,
                         drink.categoryId,
                       ),
                       isSaved: true,
@@ -69,8 +75,8 @@ class _EmptySavedDrinks extends StatelessWidget {
             color: AppColors.primary.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Chưa có đồ uống nào được lưu',
+          Text(
+            AppLocalizations.of(context)!.emptySavedDrinksTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -79,8 +85,8 @@ class _EmptySavedDrinks extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Nhấn biểu tượng bookmark trên thẻ đồ uống để lưu công thức bạn muốn nhé.',
+          Text(
+            AppLocalizations.of(context)!.emptySavedDrinksMessage,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary),
           ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/language_toggle_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -6,11 +8,16 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final bodyStyle = theme.textTheme.bodyLarge;
     final labelStyle = bodyStyle?.copyWith(fontWeight: FontWeight.bold);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Giới thiệu'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.aboutTitle),
+        centerTitle: true,
+        actions: const [LanguageToggleButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -28,7 +35,7 @@ class AboutScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  'Drink Recipe App',
+                  l10n.appName,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -36,25 +43,20 @@ class AboutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              Text('Môn học:', style: labelStyle),
-              Text('Lập trình thiết bị di động', style: bodyStyle),
+              Text(l10n.subjectLabel, style: labelStyle),
+              Text(l10n.subjectValue, style: bodyStyle),
 
               const SizedBox(height: 16),
-              Text('Giảng viên:', style: labelStyle),
-              Text('ThS.NCS Nguyễn Xuân Quế', style: bodyStyle),
+              Text(l10n.lecturerLabel, style: labelStyle),
+              Text(l10n.lecturerValue, style: bodyStyle),
 
               const SizedBox(height: 16),
-              Text('Nhóm:', style: labelStyle),
-              Text('Nhóm 8', style: bodyStyle),
+              Text(l10n.groupLabel, style: labelStyle),
+              Text(l10n.groupValue, style: bodyStyle),
 
               const SizedBox(height: 16),
-              Text('Thành viên:', style: labelStyle),
-              Text(
-                '- Hồ Sỹ Long – 24100319\n'
-                '- Nguyễn Lê Trung Nguyên – 24100298\n'
-                '- Phan Thị Ngân Quỳnh – 24100457',
-                style: bodyStyle,
-              ),
+              Text(l10n.membersLabel, style: labelStyle),
+              Text(l10n.membersValue, style: bodyStyle),
             ],
           ),
         ),

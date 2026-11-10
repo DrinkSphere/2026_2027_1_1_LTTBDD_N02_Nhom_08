@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../user/screens/user_main_screen.dart';
 import '../widgets/auth_text_field.dart';
@@ -52,6 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -62,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Đăng ký tài khoản ${_nameController.text} thành công!',
+                  l10n.registerSuccess,
                 ),
               ),
             ],
@@ -77,8 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         (route) => false,
       );
     } else {
-      final errorMsg =
-          authProvider.errorMessage ?? 'Đăng ký thất bại, vui lòng thử lại.';
+      final errorMsg = authProvider.localizedErrorMessage(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -98,11 +99,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Đăng Ký Tài Khoản'),
+        title: Text(l10n.registerTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
           onPressed: () => Navigator.of(context).pop(),
@@ -133,8 +135,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Tạo Tài Khoản Mới',
+                  Text(
+                    l10n.registerHeading,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
@@ -143,8 +145,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Khám phá vô số công thức pha chế đỉnh cao',
+                  Text(
+                    l10n.registerSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -156,44 +158,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Họ tên
                   AuthTextField(
                     controller: _nameController,
-                    label: 'Họ và tên',
-                    hintText: 'Ví dụ: Nguyễn Văn A',
+                    label: l10n.fullName,
+                    hintText: l10n.nameHint,
                     prefixIcon: Icons.badge_outlined,
                     validator: (val) =>
-                        Validators.validateRequired(val, 'họ và tên'),
+                        Validators.validateRequired(
+                          val,
+                          l10n.fullName,
+                          context: context,
+                        ),
                   ),
                   const SizedBox(height: 16),
 
                   // Email
                   AuthTextField(
                     controller: _emailController,
-                    label: 'Địa chỉ Email',
+                    label: l10n.emailAddressLabel,
                     hintText: 'name@example.com',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: Validators.validateEmail,
+                    validator: (value) => Validators.validateEmail(
+                      value,
+                      context: context,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
                   // Số điện thoại
                   AuthTextField(
                     controller: _phoneController,
-                    label: 'Số điện thoại (tùy chọn)',
+                    label: l10n.phoneOptionalLabel,
                     hintText: '0901234567',
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
-                    validator: Validators.validatePhone,
+                    validator: (value) => Validators.validatePhone(
+                      value,
+                      context: context,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
                   // Mật khẩu
                   AuthTextField(
                     controller: _passwordController,
-                    label: 'Mật khẩu',
-                    hintText: 'Tối thiểu 6 ký tự',
+                    label: l10n.passwordLabel,
+                    hintText: l10n.passwordLengthHint,
                     prefixIcon: Icons.lock_outline,
                     obscureText: _obscurePassword,
-                    validator: Validators.validatePassword,
+                    validator: (value) => Validators.validatePassword(
+                      value,
+                      context: context,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -214,8 +229,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Xác nhận mật khẩu
                   AuthTextField(
                     controller: _confirmPasswordController,
-                    label: 'Xác nhận mật khẩu',
-                    hintText: 'Nhập lại mật khẩu vừa đặt',
+                    label: l10n.confirmPasswordLabel,
+                    hintText: l10n.confirmPasswordHint,
                     prefixIcon: Icons.lock_reset_outlined,
                     obscureText: _obscureConfirmPassword,
                     textInputAction: TextInputAction.done,
@@ -223,6 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (val) => Validators.validateConfirmPassword(
                       val,
                       _passwordController.text,
+                      context: context,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -256,8 +272,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
-                            'Đăng Ký',
+                        : Text(
+                            l10n.registerNow,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -270,14 +286,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Đã có tài khoản? ',
+                      Text(
+                        l10n.alreadyHaveAccount,
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
-                        child: const Text(
-                          'Đăng nhập ngay',
+                        child: Text(
+                          l10n.loginNow,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,

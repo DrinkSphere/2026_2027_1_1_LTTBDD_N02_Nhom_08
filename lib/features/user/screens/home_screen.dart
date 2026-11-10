@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
 import '../../../data/models/drink_model.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/drink_provider.dart';
 import 'drink_detail_screen.dart';
 import 'taste_recommendation_screen.dart';
@@ -15,10 +17,14 @@ class HomeScreen extends StatelessWidget {
     final drinks = drinkProvider.filteredDrinks;
     final categories = drinkProvider.categories;
     final selectedCat = drinkProvider.selectedCategoryId;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Công Thức Đồ Uống')),
+      appBar: AppBar(
+        title: Text(l10n.homeTitle),
+        actions: const [LanguageToggleButton()],
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -32,8 +38,8 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: TextField(
                   onChanged: (val) => drinkProvider.setSearchQuery(val),
-                  decoration: const InputDecoration(
-                    hintText: 'Tìm kiếm công thức...',
+                  decoration: InputDecoration(
+                    hintText: l10n.searchRecipesHint,
                     prefixIcon: Icon(Icons.search),
                   ),
                 ),
@@ -79,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
-                        label: const Text('Tất cả'),
+                        label: Text(l10n.allCategories),
                         selected: selectedCat == 'all',
                         selectedColor: AppColors.primary,
                         labelStyle: TextStyle(
@@ -99,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text(c.name),
+                          label: Text(_categoryName(l10n, c.id, c.name)),
                           selected: isSelected,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
@@ -123,9 +129,7 @@ class HomeScreen extends StatelessWidget {
               // Drinks list
               Expanded(
                 child: drinks.isEmpty
-                    ? const Center(
-                        child: Text('Không có công thức nào phù hợp.'),
-                      )
+                    ? Center(child: Text(l10n.noMatchingRecipes))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -135,6 +139,7 @@ class HomeScreen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final drink = drinks[index];
                           final catName = drinkProvider.getCategoryName(
+                            context,
                             drink.categoryId,
                           );
 
@@ -352,6 +357,34 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+String _categoryName(AppLocalizations l10n, String id, String fallback) {
+  switch (id) {
+    case 'cat_coffee':
+      return l10n.coffeeCategory;
+    case 'cat_milk_tea':
+      return l10n.milkTeaCategory;
+    case 'cat_juice':
+      return l10n.juiceCategory;
+    case 'cat_soda':
+      return l10n.sodaCategory;
+    default:
+      return fallback;
+  }
+}
+
+String _difficultyName(AppLocalizations l10n, String value) {
+  switch (value) {
+    case 'Dễ':
+      return l10n.easy;
+    case 'Khó':
+      return l10n.hard;
+    case 'Trung bình':
+      return l10n.medium;
+    default:
+      return value;
+  }
+}
+
 class DrinkCard extends StatelessWidget {
   final DrinkModel drink;
   final String categoryName;
@@ -370,6 +403,7 @@ class DrinkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 18),
       clipBehavior: Clip.antiAlias,
@@ -411,7 +445,11 @@ class DrinkCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      categoryName,
+                      _localizedCategoryName(
+                        l10n,
+                        drink.categoryId,
+                        categoryName,
+                      ),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -429,7 +467,7 @@ class DrinkCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      tooltip: isSaved ? 'Bỏ lưu đồ uống' : 'Lưu đồ uống',
+                      tooltip: isSaved ? l10n.unsaveDrink : l10n.saveDrink,
                       onPressed: onSaveToggle,
                       icon: Icon(
                         isSaved ? Icons.bookmark : Icons.bookmark_border,
@@ -479,7 +517,7 @@ class DrinkCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    drink.name,
+                    drink.getName(context),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -487,7 +525,7 @@ class DrinkCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    drink.description,
+                    drink.getDescription(context),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -505,7 +543,7 @@ class DrinkCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${drink.cookingTimeMinutes} phút',
+                        l10n.minutes(drink.cookingTimeMinutes),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
@@ -519,15 +557,15 @@ class DrinkCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        drink.difficulty,
+                        _difficultyName(l10n, drink.difficulty),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       const Spacer(),
-                      const Text(
-                        'Xem công thức →',
+                      Text(
+                        l10n.viewRecipe,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -543,5 +581,24 @@ class DrinkCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _localizedCategoryName(
+    AppLocalizations l10n,
+    String categoryId,
+    String fallback,
+  ) {
+    switch (categoryId) {
+      case 'cat_coffee':
+        return l10n.coffeeCategory;
+      case 'cat_milk_tea':
+        return l10n.milkTeaCategory;
+      case 'cat_juice':
+        return l10n.juiceCategory;
+      case 'cat_soda':
+        return l10n.sodaCategory;
+      default:
+        return fallback;
+    }
   }
 }
