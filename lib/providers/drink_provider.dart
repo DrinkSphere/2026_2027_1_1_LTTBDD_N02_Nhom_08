@@ -13,6 +13,7 @@ class DrinkProvider extends ChangeNotifier {
   List<CategoryModel> _categories = [];
   List<IngredientModel> _ingredients = [];
   List<CommentModel> _comments = [];
+  final Set<String> _savedDrinkIds = {};
 
   String _selectedCategoryId = 'all';
   String _searchQuery = '';
@@ -29,6 +30,17 @@ class DrinkProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get selectedCategoryId => _selectedCategoryId;
   String get searchQuery => _searchQuery;
+  List<DrinkModel> get savedDrinks =>
+      _drinks.where((drink) => _savedDrinkIds.contains(drink.id)).toList();
+
+  bool isDrinkSaved(String drinkId) => _savedDrinkIds.contains(drinkId);
+
+  void toggleDrinkSaved(String drinkId) {
+    if (!_savedDrinkIds.add(drinkId)) {
+      _savedDrinkIds.remove(drinkId);
+    }
+    notifyListeners();
+  }
 
   void _init() {
     _drinks = _storage.loadDrinks();
