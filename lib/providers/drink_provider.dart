@@ -5,6 +5,7 @@ import '../data/models/ingredient_model.dart';
 import '../data/models/comment_model.dart';
 import '../data/mock/mock_data.dart';
 import '../data/services/storage_service.dart';
+import '../l10n/app_localizations.dart';
 
 class DrinkProvider extends ChangeNotifier {
   final StorageService _storage;
@@ -87,8 +88,17 @@ class DrinkProvider extends ChangeNotifier {
     }
     // Tự động bổ sung các công thức mới cho từng danh mục (Bạc xỉu, Trà đào cam sả, Nước ép...) nếu chưa có
     for (var mockDrink in MockData.drinks) {
-      if (!_drinks.any((d) => d.id == mockDrink.id)) {
+      final existingIndex = _drinks.indexWhere((d) => d.id == mockDrink.id);
+      if (existingIndex == -1) {
         _drinks.add(mockDrink);
+        updatedDrinks = true;
+      } else if (_drinks[existingIndex].nameEn == null &&
+          mockDrink.nameEn != null) {
+        _drinks[existingIndex] = _drinks[existingIndex].copyWith(
+          nameEn: mockDrink.nameEn,
+          descriptionEn: mockDrink.descriptionEn,
+          stepsEn: mockDrink.stepsEn,
+        );
         updatedDrinks = true;
       }
     }
@@ -106,7 +116,11 @@ class DrinkProvider extends ChangeNotifier {
       final matchesSearch =
           _searchQuery.isEmpty ||
           d.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          d.description.toLowerCase().contains(_searchQuery.toLowerCase());
+          d.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (d.nameEn?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+              false) ||
+          (d.descriptionEn?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+              false);
       return matchesCategory && matchesSearch;
     }).toList();
   }
@@ -176,11 +190,11 @@ class DrinkProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String getCategoryName(String id) {
+  String getCategoryName(BuildContext context, String id) {
     try {
       return _categories.firstWhere((c) => c.id == id).name;
     } catch (_) {
-      return 'Chưa phân loại';
+      return AppLocalizations.of(context)!.uncategorized;
     }
   }
 

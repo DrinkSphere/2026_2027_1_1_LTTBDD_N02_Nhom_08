@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/models/user_model.dart';
 import '../data/services/storage_service.dart';
+import '../l10n/app_localizations.dart';
 
 class AuthProvider extends ChangeNotifier {
   final StorageService _storage;
@@ -9,6 +10,7 @@ class AuthProvider extends ChangeNotifier {
   List<UserModel> _users = [];
   bool _isLoading = false;
   String? _errorMessage;
+  String? _errorCode;
 
   AuthProvider(this._storage) {
     _init();
@@ -18,6 +20,23 @@ class AuthProvider extends ChangeNotifier {
   List<UserModel> get users => _users;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get errorCode => _errorCode;
+
+  String localizedErrorMessage(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (_errorCode) {
+      case 'emailAlreadyRegistered':
+        return l10n.emailAlreadyRegistered;
+      case 'invalidCredentials':
+        return l10n.invalidCredentials;
+      case 'accountNotFound':
+        return l10n.accountNotFound;
+      case 'currentPasswordIncorrect':
+        return l10n.currentPasswordIncorrect;
+      default:
+        return _errorMessage ?? l10n.loginFailed;
+    }
+  }
   bool get isAuthenticated => _currentUser != null;
   bool get isAdmin => _currentUser?.isAdmin ?? false;
 
@@ -28,6 +47,7 @@ class AuthProvider extends ChangeNotifier {
 
   void clearError() {
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
   }
 
@@ -54,7 +74,7 @@ class AuthProvider extends ChangeNotifier {
     final isExist = _users.any((u) => u.email.toLowerCase() == normalizedEmail);
 
     if (isExist) {
-      _errorMessage = 'Email "$email" đã được đăng ký trên hệ thống.';
+      _errorCode = 'emailAlreadyRegistered';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -89,6 +109,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -104,7 +125,7 @@ class AuthProvider extends ChangeNotifier {
     );
 
     if (index == -1) {
-      _errorMessage = 'Email hoặc mật khẩu không chính xác.';
+      _errorCode = 'invalidCredentials';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -125,6 +146,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
 
     await Future.delayed(const Duration(milliseconds: 500));
@@ -133,7 +155,7 @@ class AuthProvider extends ChangeNotifier {
     final index = _users.indexWhere((u) => u.email.toLowerCase() == normalizedEmail);
 
     if (index == -1) {
-      _errorMessage = 'Không tìm thấy tài khoản với email "$email".';
+      _errorCode = 'accountNotFound';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -165,6 +187,7 @@ class AuthProvider extends ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
+    _errorCode = null;
     notifyListeners();
 
     await Future.delayed(const Duration(milliseconds: 400));
@@ -172,7 +195,7 @@ class AuthProvider extends ChangeNotifier {
     // Nếu muốn đổi mật khẩu, kiểm tra mật khẩu hiện tại
     if (newPassword != null && newPassword.isNotEmpty) {
       if (currentPassword == null || currentPassword != _currentUser!.password) {
-        _errorMessage = 'Mật khẩu hiện tại không chính xác.';
+        _errorCode = 'currentPasswordIncorrect';
         _isLoading = false;
         notifyListeners();
         return false;
@@ -209,4 +232,3 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-
