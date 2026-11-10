@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../data/models/drink_model.dart';
 import '../../../providers/drink_provider.dart';
 import 'drink_detail_screen.dart';
 import 'taste_recommendation_screen.dart';
@@ -165,15 +166,14 @@ class HomeScreen extends StatelessWidget {
                                           width: double.infinity,
                                           fit: BoxFit.cover,
                                           alignment: Alignment.center,
-                                          errorBuilder: (_, __, ___) =>
-                                              Container(
-                                                color: AppColors.primaryLight,
-                                                child: const Icon(
-                                                  Icons.local_cafe,
-                                                  size: 50,
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
+                                          errorBuilder: (_, _, _) => Container(
+                                            color: AppColors.primaryLight,
+                                            child: const Icon(
+                                              Icons.local_cafe,
+                                              size: 50,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       Positioned(
@@ -203,7 +203,40 @@ class HomeScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Positioned(
-                                        top: 12,
+                                        top: 8,
+                                        right: 8,
+                                        child: DecoratedBox(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: IconButton(
+                                            tooltip:
+                                                drinkProvider.isDrinkSaved(
+                                                  drink.id,
+                                                )
+                                                ? 'Bỏ lưu đồ uống'
+                                                : 'Lưu đồ uống',
+                                            onPressed: () => drinkProvider
+                                                .toggleDrinkSaved(drink.id),
+                                            icon: Icon(
+                                              drinkProvider.isDrinkSaved(
+                                                    drink.id,
+                                                  )
+                                                  ? Icons.bookmark
+                                                  : Icons.bookmark_border,
+                                              color:
+                                                  drinkProvider.isDrinkSaved(
+                                                    drink.id,
+                                                  )
+                                                  ? AppColors.accent
+                                                  : AppColors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 58,
                                         right: 12,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -313,6 +346,200 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DrinkCard extends StatelessWidget {
+  final DrinkModel drink;
+  final String categoryName;
+  final bool isSaved;
+  final VoidCallback? onSaveToggle;
+  final VoidCallback? onTap;
+
+  const DrinkCard({
+    super.key,
+    required this.drink,
+    required this.categoryName,
+    this.isSaved = false,
+    this.onSaveToggle,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 18),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: Image.network(
+                    drink.imageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.primaryLight,
+                      child: const Icon(
+                        Icons.local_cafe,
+                        size: 50,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      categoryName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: DecoratedBox(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      tooltip: isSaved ? 'Bỏ lưu đồ uống' : 'Lưu đồ uống',
+                      onPressed: onSaveToggle,
+                      icon: Icon(
+                        isSaved ? Icons.bookmark : Icons.bookmark_border,
+                        color: isSaved
+                            ? AppColors.accent
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 58,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: AppColors.accent,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${drink.rating}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    drink.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    drink.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.timer_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${drink.cookingTimeMinutes} phút',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Icon(
+                        Icons.bar_chart_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        drink.difficulty,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        'Xem công thức →',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
