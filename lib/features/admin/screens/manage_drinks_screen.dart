@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
 import '../../../data/models/drink_model.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/drink_provider.dart';
 import '../../user/screens/drink_detail_screen.dart';
 import 'drink_form_screen.dart';
+
+String _localizedCategoryName(
+  AppLocalizations l10n,
+  String categoryId,
+  String fallback,
+) {
+  switch (categoryId) {
+    case 'cat_coffee':
+      return l10n.coffeeCategory;
+    case 'cat_milk_tea':
+      return l10n.milkTeaCategory;
+    case 'cat_juice':
+      return l10n.juiceCategory;
+    case 'cat_soda':
+      return l10n.sodaCategory;
+    default:
+      return fallback;
+  }
+}
 
 class ManageDrinksScreen extends StatefulWidget {
   final String? initialCategoryId;
@@ -35,14 +56,16 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa đồ uống'),
+        title: Text(AppLocalizations.of(context)!.confirmDelete),
         content: Text(
-          'Bạn có chắc chắn muốn xóa "${drink.name}" khỏi hệ thống?',
+          AppLocalizations.of(context)!.deleteDrinkConfirmation(
+            drink.getName(context),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Hủy'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -50,7 +73,10 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
               Navigator.of(ctx).pop();
               await context.read<DrinkProvider>().deleteDrink(drink.id);
             },
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+            child: Text(
+              AppLocalizations.of(context)!.delete,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -60,6 +86,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
   @override
   Widget build(BuildContext context) {
     final drinkProvider = context.watch<DrinkProvider>();
+    final l10n = AppLocalizations.of(context)!;
     final allDrinks = drinkProvider.drinks;
     final categories = drinkProvider.categories;
 
@@ -76,14 +103,14 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Quản Lý Đồ Uống & Công Thức')),
+      appBar: AppBar(
+        title: Text(l10n.manageDrinksTitle),
+        actions: const [LanguageToggleButton()],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Thêm Đồ Uống',
-          style: TextStyle(color: Colors.white),
-        ),
+        label: Text(l10n.addDrink, style: TextStyle(color: Colors.white)),
         onPressed: () {
           Navigator.of(
             context,
@@ -102,7 +129,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                   controller: _searchCtrl,
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'Tìm kiếm theo tên hoặc mô tả...',
+                    hintText: l10n.searchByNameDescription,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchCtrl.text.isNotEmpty
                         ? IconButton(
@@ -127,7 +154,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
-                        label: Text('Tất cả (${allDrinks.length})'),
+                        label: Text(l10n.allDrinksCount(allDrinks.length)),
                         selected: _selectedCategory == 'all',
                         selectedColor: AppColors.primary,
                         labelStyle: TextStyle(
@@ -150,7 +177,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text('${c.name} ($count)'),
+                          label: Text('${c.getName(context)} ($count)'),
                           selected: isSelected,
                           selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
@@ -184,8 +211,8 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                               color: AppColors.textLight,
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'Không tìm thấy công thức đồ uống nào.',
+                            Text(
+                              l10n.noDrinkRecipes,
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 15,
@@ -195,7 +222,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                               TextButton(
                                 onPressed: () =>
                                     setState(() => _selectedCategory = 'all'),
-                                child: const Text('Xem tất cả danh mục'),
+                                child: Text(l10n.viewAllCategories),
                               ),
                           ],
                         ),
@@ -208,8 +235,10 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                         itemCount: drinks.length,
                         itemBuilder: (context, index) {
                           final drink = drinks[index];
-                          final catName = drinkProvider.getCategoryName(
+                          final catName = _localizedCategoryName(
+                            l10n,
                             drink.categoryId,
+                            drinkProvider.getCategoryName(context, drink.categoryId),
                           );
 
                           return Card(
@@ -244,7 +273,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                                 ),
                               ),
                               title: Text(
-                                drink.name,
+                                drink.getName(context),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -255,7 +284,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                                 children: [
                                   const SizedBox(height: 4),
                                   Text(
-                                    '📁 $catName • ⏱️ ${drink.cookingTimeMinutes}p • 📊 ${drink.difficulty}',
+                                    '📁 $catName • ⏱️ ${drink.cookingTimeMinutes} ${l10n.minuteUnit} • 📊 ${drink.getDifficulty(context)}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary,
@@ -263,7 +292,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    '🧪 ${drink.ingredients.length} nguyên liệu • 📝 ${drink.steps.length} bước',
+                                    '🧪 ${l10n.ingredientStepCount(drink.ingredients.length, drink.getSteps(context).length)}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -280,7 +309,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                                       Icons.edit_outlined,
                                       color: AppColors.info,
                                     ),
-                                    tooltip: 'Sửa công thức',
+                                    tooltip: l10n.editLabel,
                                     onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -296,7 +325,7 @@ class _ManageDrinksScreenState extends State<ManageDrinksScreen> {
                                       Icons.delete_outline,
                                       color: AppColors.error,
                                     ),
-                                    tooltip: 'Xóa',
+                                    tooltip: l10n.delete,
                                     onPressed: () =>
                                         _confirmDelete(context, drink),
                                   ),

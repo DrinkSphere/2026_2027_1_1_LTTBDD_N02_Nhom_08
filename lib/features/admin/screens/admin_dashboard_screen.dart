@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/drink_provider.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -18,6 +20,7 @@ class AdminDashboardScreen extends StatelessWidget {
     final authProvider = context.watch<AuthProvider>();
     final drinkProvider = context.watch<DrinkProvider>();
     final user = authProvider.currentUser;
+    final l10n = AppLocalizations.of(context)!;
 
     final totalDrinks = drinkProvider.drinks.length;
     final totalCategories = drinkProvider.categories.length;
@@ -28,15 +31,16 @@ class AdminDashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(l10n.adminDashboard),
         actions: [
+          const LanguageToggleButton(),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Hồ sơ Admin',
+            tooltip: l10n.profileTitle,
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
             },
           ),
         ],
@@ -73,7 +77,9 @@ class AdminDashboardScreen extends StatelessWidget {
                         radius: 28,
                         backgroundColor: Colors.white,
                         child: Text(
-                          (user?.name.isNotEmpty == true) ? user!.name[0].toUpperCase() : 'A',
+                          (user?.name.isNotEmpty == true)
+                              ? user!.name[0].toUpperCase()
+                              : 'A',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -86,12 +92,15 @@ class AdminDashboardScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Xin chào Admin,',
-                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                            Text(
+                              '${l10n.welcomeAdmin},',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
                             ),
                             Text(
-                              user?.name ?? 'Quản trị viên',
+                              user?.name ?? l10n.systemAdministrator,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -100,14 +109,20 @@ class AdminDashboardScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
-                                'Toàn quyền Quản trị Hệ thống',
-                                style: TextStyle(color: Colors.white, fontSize: 11),
+                              child: Text(
+                                l10n.systemAdminRole,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                ),
                               ),
                             ),
                           ],
@@ -119,8 +134,8 @@ class AdminDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Mục Thống kê
-                const Text(
-                  'Thống kê hệ thống',
+                Text(
+                  l10n.systemStatistics,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -143,50 +158,62 @@ class AdminDashboardScreen extends StatelessWidget {
                       childAspectRatio: isWide ? 2.9 : 3.8,
                       children: [
                         AdminMetricCard(
-                          title: 'Đồ uống & Công thức',
+                          title: l10n.drinksAndRecipes,
                           value: '$totalDrinks',
-                          subtitle: 'Xem & chỉnh sửa công thức',
+                          subtitle: l10n.viewEditRecipes,
                           icon: Icons.local_cafe_rounded,
                           color: AppColors.primary,
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ManageDrinksScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ManageDrinksScreen(),
+                              ),
                             );
                           },
                         ),
                         AdminMetricCard(
-                          title: 'Danh mục đồ uống',
+                          title: l10n.drinkCategories,
                           value: '$totalCategories',
-                          subtitle: 'Phân loại thực đơn',
+                          subtitle: l10n.menuClassification,
                           icon: Icons.category_rounded,
                           color: const Color(0xFF8B5CF6),
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ManageCategoriesScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ManageCategoriesScreen(),
+                              ),
                             );
                           },
                         ),
                         AdminMetricCard(
-                          title: 'Nguyên liệu trong kho',
+                          title: l10n.storageIngredients,
                           value: '$totalIngredients',
-                          subtitle: 'Định lượng & đơn vị tính',
+                          subtitle: l10n.quantitiesAndUnits,
                           icon: Icons.kitchen_rounded,
                           color: AppColors.secondary,
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ManageIngredientsScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ManageIngredientsScreen(),
+                              ),
                             );
                           },
                         ),
                         AdminMetricCard(
-                          title: 'Bình luận chờ duyệt',
+                          title: l10n.pendingComments,
                           value: '$pendingComments',
-                          subtitle: pendingComments > 0 ? 'Có bình luận cần xử lý' : 'Đã duyệt tất cả',
+                          subtitle: pendingComments > 0
+                              ? l10n.pendingCommentsBadge
+                              : l10n.allApproved,
                           icon: Icons.rate_review_rounded,
-                          color: pendingComments > 0 ? AppColors.error : AppColors.info,
+                          color: pendingComments > 0
+                              ? AppColors.error
+                              : AppColors.info,
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const ManageCommentsScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ManageCommentsScreen(),
+                              ),
                             );
                           },
                         ),
@@ -197,8 +224,8 @@ class AdminDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Lối tắt quản lý
-                const Text(
-                  'Lối tắt quản lý',
+                Text(
+                  l10n.managementShortcuts,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -218,59 +245,103 @@ class AdminDashboardScreen extends StatelessWidget {
                       ListTile(
                         leading: const CircleAvatar(
                           backgroundColor: AppColors.primaryLight,
-                          child: Icon(Icons.local_cafe, color: AppColors.primary, size: 20),
+                          child: Icon(
+                            Icons.local_cafe,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                         ),
-                        title: const Text('Quản lý Đồ uống & Công thức', style: TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: const Text('Thêm, sửa công thức, định lượng nguyên liệu'),
+                        title: Text(
+                          l10n.manageDrinksRecipes,
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(l10n.addEditRecipesIngredients),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ManageDrinksScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const ManageDrinksScreen(),
+                            ),
                           );
                         },
                       ),
                       const Divider(height: 1, indent: 64),
                       ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
-                          child: const Icon(Icons.category, color: Color(0xFF8B5CF6), size: 20),
+                          backgroundColor: const Color(
+                            0xFF8B5CF6,
+                          ).withValues(alpha: 0.12),
+                          child: const Icon(
+                            Icons.category,
+                            color: Color(0xFF8B5CF6),
+                            size: 20,
+                          ),
                         ),
-                        title: const Text('Quản lý Danh mục đồ uống', style: TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: const Text('Phân loại cà phê, trà sữa, sinh tố, mocktail'),
+                        title: Text(
+                          l10n.manageDrinkCategories,
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(l10n.classifyDrinkCategories),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ManageCategoriesScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const ManageCategoriesScreen(),
+                            ),
                           );
                         },
                       ),
                       const Divider(height: 1, indent: 64),
                       ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppColors.secondary.withValues(alpha: 0.12),
-                          child: const Icon(Icons.kitchen, color: AppColors.secondary, size: 20),
+                          backgroundColor: AppColors.secondary.withValues(
+                            alpha: 0.12,
+                          ),
+                          child: const Icon(
+                            Icons.kitchen,
+                            color: AppColors.secondary,
+                            size: 20,
+                          ),
                         ),
-                        title: const Text('Quản lý Nguyên liệu', style: TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: const Text('Kho nguyên liệu, đơn vị tính chuẩn'),
+                        title: Text(
+                          l10n.manageIngredients,
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(l10n.ingredientManagementSubtitle),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ManageIngredientsScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const ManageIngredientsScreen(),
+                            ),
                           );
                         },
                       ),
                       const Divider(height: 1, indent: 64),
                       ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppColors.warning.withValues(alpha: 0.12),
-                          child: const Icon(Icons.comment, color: AppColors.warning, size: 20),
+                          backgroundColor: AppColors.warning.withValues(
+                            alpha: 0.12,
+                          ),
+                          child: const Icon(
+                            Icons.comment,
+                            color: AppColors.warning,
+                            size: 20,
+                          ),
                         ),
-                        title: const Text('Kiểm duyệt Bình luận', style: TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text('Duyệt hoặc xóa bình luận ($pendingComments chờ xử lý)'),
+                        title: Text(
+                          l10n.moderateComments,
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          l10n.approveDeleteComments(pendingComments),
+                        ),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ManageCommentsScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const ManageCommentsScreen(),
+                            ),
                           );
                         },
                       ),
@@ -289,12 +360,18 @@ class AdminDashboardScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.people_alt_outlined, color: AppColors.info),
+                      const Icon(
+                        Icons.people_alt_outlined,
+                        color: AppColors.info,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Hệ thống hiện có $totalUsers tài khoản người dùng đăng ký.',
-                          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                          l10n.registeredUserAccounts(totalUsers),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ],

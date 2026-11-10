@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/widgets/language_toggle_button.dart';
 import '../../../data/models/drink_model.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/drink_provider.dart';
 
@@ -28,37 +30,63 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
 
   late List<DrinkIngredientItem> _selectedIngredients;
   late List<TextEditingController> _stepControllers;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
     final d = widget.initialDrink;
     final drinkProvider = context.read<DrinkProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     _nameCtrl = TextEditingController(text: d?.name ?? '');
     _descCtrl = TextEditingController(text: d?.description ?? '');
     _imgCtrl = TextEditingController(
-      text: d?.imageUrl ?? 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=500',
+      text:
+          d?.imageUrl ??
+          'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=500',
     );
-    _timeCtrl = TextEditingController(text: (d?.cookingTimeMinutes ?? 10).toString());
+    _timeCtrl = TextEditingController(
+      text: (d?.cookingTimeMinutes ?? 10).toString(),
+    );
 
-    _selectedCategoryId = d?.categoryId ??
-        (drinkProvider.categories.isNotEmpty ? drinkProvider.categories.first.id : '');
+    _selectedCategoryId =
+        d?.categoryId ??
+        (drinkProvider.categories.isNotEmpty
+            ? drinkProvider.categories.first.id
+            : '');
     _selectedDifficulty = d?.difficulty ?? 'Dễ';
 
-    _selectedIngredients = d?.ingredients.map((e) => DrinkIngredientItem(
-          ingredientId: e.ingredientId,
-          ingredientName: e.ingredientName,
-          amount: e.amount,
-          unit: e.unit,
-        )).toList() ?? [];
+    _selectedIngredients =
+        d?.ingredients
+            .map(
+              (e) => DrinkIngredientItem(
+                ingredientId: e.ingredientId,
+                ingredientName: e.ingredientName,
+                ingredientNameEn: e.ingredientNameEn,
+                amount: e.amount,
+                unit: e.unit,
+              ),
+            )
+            .toList() ??
+        [];
 
     if (d != null && d.steps.isNotEmpty) {
-      _stepControllers = d.steps.map((s) => TextEditingController(text: s)).toList();
+      _stepControllers = d.steps
+          .map((s) => TextEditingController(text: s))
+          .toList();
     } else {
       _stepControllers = [
-        TextEditingController(text: 'Chuẩn bị nguyên liệu sạch sẽ.'),
-        TextEditingController(text: 'Tiến hành pha chế theo định lượng.'),
+        TextEditingController(text: l10n.defaultStep1),
+        TextEditingController(text: l10n.defaultStep2),
       ];
     }
   }
@@ -76,13 +104,14 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
   }
 
   void _addIngredientDialog() {
+    final l10n = AppLocalizations.of(context)!;
     final drinkProvider = context.read<DrinkProvider>();
     final allIngredients = drinkProvider.ingredients;
 
     if (allIngredients.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng tạo ít nhất một nguyên liệu trong kho trước!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.noIngredientInventory)));
       return;
     }
 
@@ -93,17 +122,22 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDlgState) {
-          final currentIng = allIngredients.firstWhere((i) => i.id == chosenIngId);
+          final currentIng = allIngredients.firstWhere(
+            (i) => i.id == chosenIngId,
+          );
           return AlertDialog(
-            title: const Text('Thêm nguyên liệu vào công thức'),
+            title: Text(l10n.addIngredientToRecipe),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
                   value: chosenIngId,
-                  decoration: const InputDecoration(labelText: 'Chọn nguyên liệu'),
+                  decoration: InputDecoration(labelText: l10n.chooseIngredient),
                   items: allIngredients.map((i) {
-                    return DropdownMenuItem(value: i.id, child: Text(i.name));
+                    return DropdownMenuItem(
+                      value: i.id,
+                      child: Text(i.getName(context)),
+                    );
                   }).toList(),
                   onChanged: (val) {
                     if (val != null) {
@@ -119,9 +153,11 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: amountCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         decoration: InputDecoration(
-                          labelText: 'Định lượng (${currentIng.unit})',
+                          labelText: l10n.amount(currentIng.unit),
                         ),
                       ),
                     ),
@@ -130,21 +166,26 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(l10n.cancel),
+              ),
               ElevatedButton(
                 onPressed: () {
                   final amount = double.tryParse(amountCtrl.text) ?? 10.0;
                   setState(() {
-                    _selectedIngredients.add(DrinkIngredientItem(
-                      ingredientId: currentIng.id,
-                      ingredientName: currentIng.name,
-                      amount: amount,
-                      unit: currentIng.unit,
-                    ));
+                    _selectedIngredients.add(
+                      DrinkIngredientItem(
+                        ingredientId: currentIng.id,
+                        ingredientName: currentIng.name,
+                        amount: amount,
+                        unit: currentIng.unit,
+                      ),
+                    );
                   });
                   Navigator.of(ctx).pop();
                 },
-                child: const Text('Thêm'),
+                child: Text(l10n.addNew),
               ),
             ],
           );
@@ -154,11 +195,12 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
   }
 
   void _saveDrink() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedIngredients.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng thêm ít nhất 1 nguyên liệu!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.atLeastOneIngredient)));
       return;
     }
 
@@ -172,7 +214,9 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
         .toList();
 
     final drink = DrinkModel(
-      id: isEditing ? widget.initialDrink!.id : 'drink_${DateTime.now().millisecondsSinceEpoch}',
+      id: isEditing
+          ? widget.initialDrink!.id
+          : 'drink_${DateTime.now().millisecondsSinceEpoch}',
       name: _nameCtrl.text.trim(),
       categoryId: _selectedCategoryId,
       description: _descCtrl.text.trim(),
@@ -180,9 +224,13 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
       cookingTimeMinutes: int.tryParse(_timeCtrl.text) ?? 10,
       difficulty: _selectedDifficulty,
       ingredients: _selectedIngredients,
-      steps: steps.isNotEmpty ? steps : ['Thực hiện pha chế theo công thức.'],
-      creatorId: isEditing ? widget.initialDrink!.creatorId : (currentUser?.id ?? 'admin'),
-      creatorName: isEditing ? widget.initialDrink!.creatorName : (currentUser?.name ?? 'Admin'),
+      steps: steps.isNotEmpty ? steps : [l10n.defaultStep1],
+      creatorId: isEditing
+          ? widget.initialDrink!.creatorId
+          : (currentUser?.id ?? 'admin'),
+      creatorName: isEditing
+          ? widget.initialDrink!.creatorName
+          : (currentUser?.name ?? 'Admin'),
       rating: isEditing ? widget.initialDrink!.rating : 5.0,
       isApproved: true,
     );
@@ -201,11 +249,13 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
   Widget build(BuildContext context) {
     final categories = context.watch<DrinkProvider>().categories;
     final isEditing = widget.initialDrink != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Cập Nhật Đồ Uống' : 'Thêm Đồ Uống & Công Thức'),
+        title: Text(isEditing ? l10n.updateDrink : l10n.addDrink),
         actions: [
+          const LanguageToggleButton(),
           IconButton(
             icon: const Icon(Icons.check, color: AppColors.primary),
             onPressed: _saveDrink,
@@ -220,20 +270,30 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
             // Tên đồ uống
             TextFormField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Tên đồ uống',
-                hintText: 'Ví dụ: Cà Phê Muối Xứ Huế',
+              decoration: InputDecoration(
+                labelText: l10n.drinkName,
+                hintText: l10n.drinkNameHint,
               ),
-              validator: (val) => Validators.validateRequired(val, 'tên đồ uống'),
+              validator: (val) => Validators.validateRequired(
+                val,
+                l10n.drinkName,
+                context: context,
+                requiredMessage: l10n.valRequired,
+              ),
             ),
             const SizedBox(height: 14),
 
             // Danh mục
             DropdownButtonFormField<String>(
-              value: _selectedCategoryId.isNotEmpty ? _selectedCategoryId : null,
-              decoration: const InputDecoration(labelText: 'Danh mục đồ uống'),
+              value: _selectedCategoryId.isNotEmpty
+                  ? _selectedCategoryId
+                  : null,
+              decoration: InputDecoration(labelText: l10n.drinkCategory),
               items: categories.map((c) {
-                return DropdownMenuItem(value: c.id, child: Text(c.name));
+                return DropdownMenuItem(
+                  value: c.id,
+                  child: Text(c.getName(context)),
+                );
               }).toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedCategoryId = val);
@@ -244,21 +304,26 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
             // Mô tả
             TextFormField(
               controller: _descCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Mô tả hương vị & đặc điểm',
-                hintText: 'Mô tả cảm quan của đồ uống...',
+              decoration: InputDecoration(
+                labelText: l10n.drinkDescription,
+                hintText: l10n.drinkDescriptionHint,
               ),
               maxLines: 2,
-              validator: (val) => Validators.validateRequired(val, 'mô tả đồ uống'),
+              validator: (val) => Validators.validateRequired(
+                val,
+                l10n.drinkDescription,
+                context: context,
+                requiredMessage: l10n.valRequired,
+              ),
             ),
             const SizedBox(height: 14),
 
             // Ảnh URL
             TextFormField(
               controller: _imgCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Đường dẫn ảnh (URL)',
-                hintText: 'https://...',
+              decoration: InputDecoration(
+                labelText: l10n.imageUrl,
+                hintText: l10n.imageUrlHint,
               ),
             ),
             const SizedBox(height: 14),
@@ -270,9 +335,9 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                   child: TextFormField(
                     controller: _timeCtrl,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Thời gian (phút)',
-                      suffixText: 'phút',
+                    decoration: InputDecoration(
+                      labelText: l10n.preparationTime,
+                      suffixText: l10n.minuteUnit,
                     ),
                   ),
                 ),
@@ -280,14 +345,18 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _selectedDifficulty,
-                    decoration: const InputDecoration(labelText: 'Độ khó'),
-                    items: const [
-                      DropdownMenuItem(value: 'Dễ', child: Text('Dễ')),
-                      DropdownMenuItem(value: 'Trung bình', child: Text('Trung bình')),
-                      DropdownMenuItem(value: 'Khó', child: Text('Khó')),
+                    decoration: InputDecoration(labelText: l10n.difficulty),
+                    items: [
+                      DropdownMenuItem(value: 'Dễ', child: Text(l10n.easy)),
+                      DropdownMenuItem(
+                        value: 'Trung bình',
+                        child: Text(l10n.medium),
+                      ),
+                      DropdownMenuItem(value: 'Khó', child: Text(l10n.hard)),
                     ],
                     onChanged: (val) {
-                      if (val != null) setState(() => _selectedDifficulty = val);
+                      if (val != null)
+                        setState(() => _selectedDifficulty = val);
                     },
                   ),
                 ),
@@ -299,22 +368,27 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Nguyên liệu cần dùng',
+                Text(
+                  l10n.ingredientsForDrink,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 TextButton.icon(
                   onPressed: _addIngredientDialog,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Thêm nguyên liệu'),
+                  label: Text(l10n.addIngredientToDrink),
                 ),
               ],
             ),
             if (_selectedIngredients.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text('Chưa có nguyên liệu nào. Bấm "Thêm nguyên liệu" ở trên.',
-                    style: TextStyle(color: AppColors.textSecondary, fontStyle: FontStyle.italic)),
+                child: Text(
+                  l10n.noIngredientsInstruction,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               )
             else
               ..._selectedIngredients.asMap().entries.map((entry) {
@@ -324,11 +398,21 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   child: ListTile(
                     dense: true,
-                    leading: const Icon(Icons.check_circle_outline, color: AppColors.primary),
-                    title: Text(item.ingredientName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: Text('${item.amount} ${item.unit}'),
+                    leading: const Icon(
+                      Icons.check_circle_outline,
+                      color: AppColors.primary,
+                    ),
+                    title: Text(
+                      item.getName(context),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text('${item.amount} ${item.getUnit(context)}'),
                     trailing: IconButton(
-                      icon: const Icon(Icons.remove_circle_outline, color: AppColors.error, size: 20),
+                      icon: const Icon(
+                        Icons.remove_circle_outline,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
                       onPressed: () {
                         setState(() {
                           _selectedIngredients.removeAt(idx);
@@ -344,8 +428,8 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Các bước pha chế (Công thức)',
+                Text(
+                  l10n.recipeSteps,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 TextButton.icon(
@@ -355,7 +439,7 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                     });
                   },
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Thêm bước'),
+                  label: Text(l10n.addStep),
                 ),
               ],
             ),
@@ -371,7 +455,11 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                       backgroundColor: AppColors.primary,
                       child: Text(
                         '${idx + 1}',
-                        style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -379,14 +467,17 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
                       child: TextFormField(
                         controller: ctrl,
                         decoration: InputDecoration(
-                          hintText: 'Nhập hướng dẫn bước ${idx + 1}...',
+                          hintText: l10n.stepPlaceholder(idx + 1),
                         ),
                         maxLines: 2,
                       ),
                     ),
                     if (_stepControllers.length > 1)
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.error,
+                        ),
                         onPressed: () {
                           setState(() {
                             _stepControllers.removeAt(idx);
@@ -402,10 +493,15 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
             // Nút Lưu
             ElevatedButton(
               onPressed: _saveDrink,
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
               child: Text(
-                isEditing ? 'Cập Nhật Đồ Uống' : 'Lưu Đồ Uống & Công Thức',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                isEditing ? l10n.updateDrink : l10n.saveDrinkRecipe,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -414,4 +510,3 @@ class _DrinkFormScreenState extends State<DrinkFormScreen> {
     );
   }
 }
-

@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/language_toggle_button.dart';
 import '../../../data/models/comment_model.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/drink_provider.dart';
 
 class ManageCommentsScreen extends StatelessWidget {
   const ManageCommentsScreen({super.key});
 
   void _confirmDelete(BuildContext context, CommentModel comment) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xóa bình luận'),
-        content: const Text('Bạn có chắc chắn muốn xóa bình luận này không?'),
+        title: Text(l10n.delete),
+        content: Text(l10n.confirmDelete),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () async {
               Navigator.of(ctx).pop();
               await context.read<DrinkProvider>().deleteComment(comment.id);
             },
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+            child: Text(
+              l10n.delete,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -33,12 +42,14 @@ class ManageCommentsScreen extends StatelessWidget {
     final drinkProvider = context.watch<DrinkProvider>();
     final comments = drinkProvider.comments;
     final pendingCount = comments.where((c) => !c.isApproved).length;
+    final l10n = AppLocalizations.of(context)!;
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Kiểm Duyệt Bình Luận'),
+          title: Text(l10n.moderateCommentsTitle),
+          actions: const [LanguageToggleButton()],
           bottom: TabBar(
             labelColor: AppColors.primary,
             indicatorColor: AppColors.primary,
@@ -47,7 +58,7 @@ class ManageCommentsScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Chờ duyệt'),
+                    Text(l10n.pendingTab),
                     if (pendingCount > 0) ...[
                       const SizedBox(width: 6),
                       CircleAvatar(
@@ -55,14 +66,18 @@ class ManageCommentsScreen extends StatelessWidget {
                         backgroundColor: AppColors.error,
                         child: Text(
                           '$pendingCount',
-                          style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              const Tab(text: 'Tất cả bình luận'),
+              Tab(text: l10n.allCommentsTab),
             ],
           ),
         ),
@@ -93,13 +108,17 @@ class ManageCommentsScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              isPendingTab ? Icons.check_circle_outline : Icons.chat_bubble_outline,
+              isPendingTab
+                  ? Icons.check_circle_outline
+                  : Icons.chat_bubble_outline,
               size: 48,
               color: AppColors.textLight,
             ),
             const SizedBox(height: 8),
             Text(
-              isPendingTab ? 'Không có bình luận nào đang chờ duyệt' : 'Chưa có bình luận nào',
+              isPendingTab
+                  ? AppLocalizations.of(context)!.noPendingComments
+                  : AppLocalizations.of(context)!.noComments,
               style: const TextStyle(color: AppColors.textSecondary),
             ),
           ],
@@ -128,33 +147,59 @@ class ManageCommentsScreen extends StatelessWidget {
                           radius: 16,
                           backgroundColor: AppColors.primaryLight,
                           child: Text(
-                            comment.userName.isNotEmpty ? comment.userName[0].toUpperCase() : 'U',
-                            style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                            comment.userName.isNotEmpty
+                                ? comment.userName[0].toUpperCase()
+                                : 'U',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(comment.userName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text('Đồ uống: ${comment.drinkName}',
-                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                            Text(
+                              comment.userName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              AppLocalizations.of(context)!.drinkLabel(
+                                comment.drinkName,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: comment.isApproved ? Colors.green.shade50 : Colors.amber.shade50,
+                        color: comment.isApproved
+                            ? Colors.green.shade50
+                            : Colors.amber.shade50,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        comment.isApproved ? 'Đã duyệt' : 'Chờ duyệt',
+                        comment.isApproved
+                            ? AppLocalizations.of(context)!.allApproved
+                            : AppLocalizations.of(context)!.pendingTab,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: comment.isApproved ? AppColors.success : AppColors.warning,
+                          color: comment.isApproved
+                              ? AppColors.success
+                              : AppColors.warning,
                         ),
                       ),
                     ),
@@ -170,7 +215,9 @@ class ManageCommentsScreen extends StatelessWidget {
                       children: List.generate(
                         5,
                         (starIdx) => Icon(
-                          starIdx < comment.rating ? Icons.star : Icons.star_border,
+                          starIdx < comment.rating
+                              ? Icons.star
+                              : Icons.star_border,
                           size: 16,
                           color: AppColors.accent,
                         ),
@@ -180,14 +227,27 @@ class ManageCommentsScreen extends StatelessWidget {
                       children: [
                         if (!comment.isApproved)
                           TextButton.icon(
-                            icon: const Icon(Icons.check, size: 16, color: AppColors.success),
-                            label: const Text('Duyệt', style: TextStyle(color: AppColors.success)),
+                            icon: const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: AppColors.success,
+                            ),
+                            label: Text(
+                              AppLocalizations.of(context)!.approve,
+                              style: const TextStyle(color: AppColors.success),
+                            ),
                             onPressed: () async {
-                              await context.read<DrinkProvider>().approveComment(comment.id);
+                              await context
+                                  .read<DrinkProvider>()
+                                  .approveComment(comment.id);
                             },
                           ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: AppColors.error,
+                          ),
                           onPressed: () => _confirmDelete(context, comment),
                         ),
                       ],
@@ -202,4 +262,3 @@ class ManageCommentsScreen extends StatelessWidget {
     );
   }
 }
-
