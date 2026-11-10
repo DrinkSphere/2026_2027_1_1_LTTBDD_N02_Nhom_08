@@ -223,6 +223,57 @@ class DrinkProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> updateUserComment({
+    required String commentId,
+    required String userId,
+    required String content,
+    required double rating,
+  }) async {
+    final index = _comments.indexWhere((comment) => comment.id == commentId);
+    if (index == -1 ||
+        _comments[index].userId != userId ||
+        content.trim().isEmpty ||
+        rating < 1 ||
+        rating > 5) {
+      return false;
+    }
+
+    final original = _comments[index];
+    _comments[index] = original.copyWith(
+      content: content.trim(),
+      rating: rating,
+      isApproved: false,
+    );
+    final saved = await _storage.saveComments(_comments);
+    if (!saved) {
+      _comments[index] = original;
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> deleteUserComment({
+    required String commentId,
+    required String userId,
+  }) async {
+    final index = _comments.indexWhere((comment) => comment.id == commentId);
+    if (index == -1 || _comments[index].userId != userId) {
+      return false;
+    }
+
+    final removed = _comments.removeAt(index);
+    final saved = await _storage.saveComments(_comments);
+    if (!saved) {
+      _comments.insert(index, removed);
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
   Future<void> approveComment(String id) async {
     final index = _comments.indexWhere((c) => c.id == id);
     if (index != -1) {
