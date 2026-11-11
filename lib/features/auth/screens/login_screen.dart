@@ -31,13 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _fillMockAccount({required String email, required String password}) {
-    setState(() {
-      _emailController.text = email;
-      _passwordController.text = password;
-    });
-  }
-
   Future<void> _handleLogin() async {
     FocusScope.of(context).unfocus();
 
@@ -159,62 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Quick Test Account Chips
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.quickTestAccounts,
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                  side: BorderSide(color: AppColors.primary.withOpacity(0.5)),
-                                ),
-                                icon: const Icon(Icons.admin_panel_settings, size: 16),
-                                label: const Text('Admin', style: TextStyle(fontSize: 12)),
-                                onPressed: () => _fillMockAccount(
-                                  email: 'admin@gmail.com',
-                                  password: 'admin123',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                  side: BorderSide(color: AppColors.secondary.withOpacity(0.5)),
-                                  foregroundColor: AppColors.secondary,
-                                ),
-                                icon: const Icon(Icons.person, size: 16),
-                                label: const Text('User', style: TextStyle(fontSize: 12)),
-                                onPressed: () => _fillMockAccount(
-                                  email: 'user@gmail.com',
-                                  password: 'user123',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 32),
 
                   // Email
                   AuthTextField(
